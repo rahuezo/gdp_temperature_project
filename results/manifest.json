@@ -1,0 +1,59 @@
+{
+  "files" : [ {
+    "path" : "data/pub/data/paleo/paleocean/sediment_files/complete/m97-2120-tab.txt",
+    "filesize" : "30247",
+    "MD5" : "076d68868d5c5d7b049a22dec270a89b"
+  }, {
+    "path" : "data/pub/data/paleo/paleocean/sediment_files/complete/m97-2121-tab.txt",
+    "filesize" : "29799",
+    "MD5" : "00f831d8c96243109f5ea9e63a5d6a53"
+  }, {
+    "path" : "data/pub/data/paleo/contributions_by_author/pahnke2006",
+    "filesize" : "284",
+    "MD5" : "9a1fb3a06520ef81d6f52e0f448ebf76"
+  } ],
+  "params" : {
+    "cvSeasonalitiesAndOr" : "OR",
+    "cvDataTypeIdAndOr" : "OR",
+    "locationsAndOr" : "OR",
+    "dataTypesAndOr" : "OR",
+    "investigatorsAndOr" : "OR",
+    "cvWhatsAndOr" : "OR",
+    "keywordsAndOr" : "OR",
+    "xmlId" : "1840",
+    "speciesAndOr" : "OR",
+    "cvMaterialsAndOr" : "OR"
+  },
+  "matches" : [ {
+    "metadataFile" : "metadata/noaa-ocean-5589.json",
+    "studyName" : "Southern Ocean Midlatitude 160KYr Alkenone SST Reconstructions",
+    "sites" : [ {
+      "siteName" : "MD97-2120",
+      "files" : [ {
+        "fileName" : "m97-2120-tab.txt",
+        "description" : "Alternate Format Data",
+        "URL" : "https://www1.ncdc.noaa.gov/pub/data/paleo/paleocean/sediment_files/complete/m97-2120-tab.txt"
+      }, {
+        "fileName" : "pahnke2006",
+        "description" : "Original Data and Full Metadata",
+        "URL" : "https://www1.ncdc.noaa.gov/pub/data/paleo/contributions_by_author/pahnke2006"
+      } ]
+    }, {
+      "siteName" : "MD97-2121",
+      "files" : [ {
+        "fileName" : "m97-2121-tab.txt",
+        "description" : "Alternate Format Data",
+        "URL" : "https://www1.ncdc.noaa.gov/pub/data/paleo/paleocean/sediment_files/complete/m97-2121-tab.txt"
+      }, {
+        "fileName" : "pahnke2006",
+        "description" : "Original Data and Full Metadata",
+        "URL" : "https://www1.ncdc.noaa.gov/pub/data/paleo/contributions_by_author/pahnke2006"
+      } ]
+    } ],
+    "bundle" : "Y"
+  } ],
+  "info" : {
+    "bundleCreateDate" : "2018-06-22T15:08:06.207Z",
+    "details" : "See the included README.txt for details of the sections in this manifest."
+  }
+}
