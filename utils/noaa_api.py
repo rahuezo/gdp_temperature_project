@@ -62,22 +62,27 @@ def get_bundle(bundle_url, directory):
 tree_ring_width_data = load_json(tree_ring_width_url)['study']
 tree_ring_sgi_data = load_json(tree_ring_sgi_url)['study']
 
-for i, study in enumerate(tree_ring_width_data): 
-    print '{} out of {} studies\n'.format(i + 1, len(tree_ring_width_data))
-    xmlid = get_xmlid(study)
+# for i, study in enumerate(tree_ring_width_data): 
+#     print '{} out of {} studies\n'.format(i + 1, len(tree_ring_width_data))
+#     xmlid = get_xmlid(study)
     
-    print "Current study: {}".format(xmlid)
+#     print "Current study: {}".format(xmlid)
 
-    results_path = TREE_RING_WIDTH_RESULTS.format(xmlid)
-    bundle_url = get_bundle_url(xmlid)
-    current_status = check_bundling_status(bundle_url)
+#     results_path = TREE_RING_WIDTH_RESULTS.format(xmlid)
 
-    if current_status:
-        if not os.path.exists(results_path): 
-            os.makedirs(results_path)
-        get_bundle(current_status, results_path)
+#     if os.path.exists(results_path): 
+#         print "\tSkipping study because it already exists..."
+#         continue
 
-print 
+#     bundle_url = get_bundle_url(xmlid)
+#     current_status = check_bundling_status(bundle_url)
+
+#     if current_status:
+#         if not os.path.exists(results_path): 
+#             os.makedirs(results_path)
+#         get_bundle(current_status, results_path)
+
+# print 
 
 for i, study in enumerate(tree_ring_sgi_data): 
     print '{} out of {} studies\n'.format(i + 1, len(tree_ring_sgi_data))
@@ -86,6 +91,10 @@ for i, study in enumerate(tree_ring_sgi_data):
     print "Current study: {}".format(xmlid)
 
     results_path = TREE_RING_SGI_RESULTS.format(xmlid)
+    if os.path.exists(results_path): 
+        print "\tSkipping study because it already exists..."
+        continue
+
     bundle_url = get_bundle_url(xmlid)
     current_status = check_bundling_status(bundle_url)
 
