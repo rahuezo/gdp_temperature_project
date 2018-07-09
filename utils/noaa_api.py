@@ -56,7 +56,7 @@ def get_bundle(bundle_url, directory, extract=False):
 
     if extract: 
         zip_file = zipfile.ZipFile(io.BytesIO(bundle_content))
-        zip_file.extractall(output_zip_path)
+        zip_file.extractall(output_zip_path.replace('.zip', ''))
         return True
     else: 
         with open(output_zip_path, 'wb') as z: 
