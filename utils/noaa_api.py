@@ -47,7 +47,7 @@ def check_bundling_status(status_url, break_loops=BREAK_LOOPS):
             print "\n\tReached max loops and job was never complete.\n"
             return False 
         time.sleep(SLEEP_TIME)
-        print "\t\tSleeping for 2 seconds..."
+        print "\t\tSleeping for {} seconds...".format(SLEEP_TIME)
         loops += 1
 
 def get_bundle(bundle_url, directory, extract=False): 
