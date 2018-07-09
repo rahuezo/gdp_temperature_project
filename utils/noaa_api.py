@@ -49,13 +49,19 @@ def check_bundling_status(status_url, break_loops=BREAK_LOOPS):
         print "\t\tSleeping for 2 seconds..."
         loops += 1
 
-def get_bundle(bundle_url, directory): 
+def get_bundle(bundle_url, directory, extract=False): 
     zip_filename = bundle_url.split('/')[-1]
     output_zip_path = os.path.join(directory, zip_filename)
+    bundle_content = req.get(bundle_url).content
 
-    with open(output_zip_path, 'wb') as z: 
-        z.write(req.get(bundle_url).content)        
-        print "\tDownloaded {}".format(zip_filename)
+    if extract: 
+        zip_file = zipfile.ZipFile(io.BytesIO(bundle_content))
+        zip_file.extractall(output_zip_path)
+        return True
+    else: 
+        with open(output_zip_path, 'wb') as z: 
+            z.write(bundle_content)        
+    print "\tDownloaded {}".format(zip_filename)
     return True
 
 
@@ -101,4 +107,6 @@ for i, study in enumerate(tree_ring_sgi_data):
     if current_status:
         if not os.path.exists(results_path): 
             os.makedirs(results_path)
-        get_bundle(current_status, results_path)
+        get_bundle(current_status, results_path, extract=True)
+
+    break
