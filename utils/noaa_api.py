@@ -53,7 +53,7 @@ def get_bundle(bundle_url, directory):
     zip_filename = bundle_url.split('/')[-1]
     output_zip_path = os.path.join(directory, zip_filename)
 
-    with open(output_zip_path, 'w') as z: 
+    with open(output_zip_path, 'wb') as z: 
         z.write(req.get(bundle_url).content)        
         print "\tDownloaded {}".format(zip_filename)
     return True
