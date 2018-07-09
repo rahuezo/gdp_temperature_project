@@ -15,6 +15,7 @@ tree_ring_width_url = 'https://www.ncdc.noaa.gov/paleo-search/study/search.json?
 bundling_url = 'https://www.ncdc.noaa.gov/paleo-search/data/search.json?xmlId={}'
 
 BREAK_LOOPS = 20
+SLEEP_TIME = 3
 
 TREE_RING_WIDTH_RESULTS = 'results/tree_ring_width/{}'
 TREE_RING_SGI_RESULTS = 'results/tree_ring_sgi/{}'
@@ -45,7 +46,7 @@ def check_bundling_status(status_url, break_loops=BREAK_LOOPS):
         if(loops > break_loops): 
             print "\n\tReached max loops and job was never complete.\n"
             return False 
-        time.sleep(2)
+        time.sleep(SLEEP_TIME)
         print "\t\tSleeping for 2 seconds..."
         loops += 1
 
@@ -68,27 +69,28 @@ def get_bundle(bundle_url, directory, extract=False):
 tree_ring_width_data = load_json(tree_ring_width_url)['study']
 tree_ring_sgi_data = load_json(tree_ring_sgi_url)['study']
 
-# for i, study in enumerate(tree_ring_width_data): 
-#     print '{} out of {} studies\n'.format(i + 1, len(tree_ring_width_data))
-#     xmlid = get_xmlid(study)
+for i, study in enumerate(tree_ring_width_data): 
+    print '{} out of {} studies\n'.format(i + 1, len(tree_ring_width_data))
+    xmlid = get_xmlid(study)
     
-#     print "Current study: {}".format(xmlid)
+    print "Current study: {}".format(xmlid)
 
-#     results_path = TREE_RING_WIDTH_RESULTS.format(xmlid)
+    results_path = TREE_RING_WIDTH_RESULTS.format(xmlid)
 
-#     if os.path.exists(results_path): 
-#         print "\tSkipping study because it already exists..."
-#         continue
+    if os.path.exists(results_path): 
+        print "\tSkipping study because it already exists..."
+        continue
 
-#     bundle_url = get_bundle_url(xmlid)
-#     current_status = check_bundling_status(bundle_url)
+    bundle_url = get_bundle_url(xmlid)
+    current_status = check_bundling_status(bundle_url)
 
-#     if current_status:
-#         if not os.path.exists(results_path): 
-#             os.makedirs(results_path)
-#         get_bundle(current_status, results_path)
+    if current_status:
+        if not os.path.exists(results_path): 
+            os.makedirs(results_path)
+        get_bundle(current_status, results_path, extract=True)
 
-# print 
+
+print 
 
 for i, study in enumerate(tree_ring_sgi_data): 
     print '{} out of {} studies\n'.format(i + 1, len(tree_ring_sgi_data))
@@ -108,5 +110,3 @@ for i, study in enumerate(tree_ring_sgi_data):
         if not os.path.exists(results_path): 
             os.makedirs(results_path)
         get_bundle(current_status, results_path, extract=True)
-
-    break
