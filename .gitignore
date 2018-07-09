@@ -35,7 +35,8 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Program Folders
+# Program Folders/Files
+treering_data_width.zip
 results/
 
 # Unit test / coverage reports
