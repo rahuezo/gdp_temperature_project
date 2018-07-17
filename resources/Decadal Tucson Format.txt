@@ -1,0 +1,201 @@
+Tree Ring Data Description
+Description of Tree Ring Data Files and Procedures
+
+
+Site Selection and Sample Collection
+Tree ring samples are collected in the field by using a hand held increment borer to remove 
+a cylinder of wood roughly 5mm in diameter along the radius of a tree. The investigator selects 
+the site in order to maximize a particular signal. For example, a steep, rocky, south facing 
+slope may be selected to find trees under maximum water stress, such that growth rates can 
+become a strong proxy for precipitation. Therefore, it is essential to be familiar with the 
+characteristics of the site, as well as the factors regulating tree growth, in order to 
+correctly interpret the results. For reliable statistical analysis, a rule of thumb is 
+20 trees per site, but this will vary according to the strength of the climate signal 
+in the trees and the purpose of the collection. Two samples are generally collected 
+per tree to facilitate cross-correlation and accurate dating of the annual rings.
+
+The samples are returned to the laboratory, where they are mounted and finely sanded 
+to allow cross-dating and measurement of the widths of the annual rings. (In some cases 
+wood density is also measured, which may provide a more reliable growth signal and 
+additional information). The ring widths are measured to the nearest 0.01mm or .001mm 
+and recorded in computerized data files.
+
+A statistical evaluation of the crossdating has been conducted for most ITRDB sites 
+using the COFECHA program contained in the ITRDB Program Library.
+
+Note: In the Southern Hemisphere, all collections are dated such that the calendar year 
+represents the year in which tree growth began.
+
+
+
+Standardization
+The raw ring width data from the samples collected at one site are standardized 
+and the results are averaged into a site chronology. The standardization process 
+involves fitting a curve to the ring-width series, and then dividing each ring-width 
+value by the corresponding curve value (or calculating the difference between the 
+ring-width values and the curve value) to generate a series of growth indices. 
+This process allows samples with large differences in growth rates to be combined, 
+and can be used to remove any undesired growth trends present. For example, a typical 
+sample might display exponentially declining growth with age, the classic biological 
+growth curve. Standardizing this sample using a negative exponential function results 
+in data values which represent the departure from the "expected" value for a given year. 
+The series of standardized growth indices is then used to interpret a proxy environmental 
+signal in the data.
+
+Many of the chronologies in the ITRDB were created with Program ARSTAN, developed by 
+Dr. Edward R. Cook at the Tree-Ring Laboratory, Lamont-Doherty Earth Observatory 
+of Columbia University, Palisades, New York (Cook 1985). Program ARSTAN produces 
+chronologies from tree-ring measurement series by detrending and indexing (standardizing) 
+the series, then applying a robust estimation of the mean value function to remove effects 
+of endogenous stand disturbances. Three versions of the chronology are produced, 
+intended to contain a maximum common signal and a minimum amount of noise. 
+The standard chronology, designated sitecode.crn, is processed as above without 
+autoregressive modeling. The residual ("whitened") chronology, designated sitecodeR.crn, 
+is additionally processed using autoregressive modeling to remove autocorrelation. 
+The third version, or ARSTAN chronology, designated sitecodeA.crn, is calculated by 
+reincorporating the pooled autoregression (persistence) into the residual chronology.
+
+The index values are unitless, with a nearly stable mean and variance, allowing indices 
+from numerous trees to be averaged into a site chronology. The statistical methods 
+for accomplishing the standardization can be complex. For a more complete discussion 
+of methods, see References below. 
+
+The chronology represents the departure of growth for a given year vs. the series mean, 
+and is expressed as a 3 or 4 digit integer with 1.000 (listed without the decimal point 
+as 1000 or 100 in the data files) representing the long term mean. Higher or lower values 
+for a given year represent proportionally higher or lower tree growth for that year. 
+A researcher can combine knowledge of the individual site and tree species to interpret 
+the growth variations in terms of climate or other environmental factors.
+
+The chronologies recorded here are those calculated by the original investigator. 
+The raw ring widths are also archived to allow reprocessing of the chronologies.
+
+
+
+Format for Tree-Ring Data Files
+
+Raw Data Files (File Extension .RWL)
+
+These are measurements in units of .01mm or .001mm of the thickness of tree ring width 
+for each year. Each file consists of all the measurements for a given site. Fifty or more 
+Core ID numbers and data series may comprise one (site) file. Missing value code is 
+999 or -9999. The 10 values following the decade are the 10 annual measurements 
+for the 10 years of that decade. First and last decade rows for each core may contain 
+less than 10 values. The standard format is:
+
+Core ID Number columns 1-6
+Decade columns 9-12
+Data Values columns 13-73, 6 columns/measurement, 10(I6)
+Optional Site ID columns 74-78
+
+
+
+Processed Data Files (Site Chronologies, File Extension .CRN)
+
+These are the standardized tree-growth indices from a stand of trees, representing the mean 
+growth observed for each year over the entire stand. Site chronologies are used in 
+climate analysis. Data are stored as 3 or 4-digit numbers, with a value of 1000 
+representing mean growth, a minimum value of 0 (no growth), and no defined maximum. 
+There is only one time series per file, in contrast to the raw data files. 
+Missing value code is 9990. Site information is stored in the first 3 records of the file.
+
+Format for chronology header records:
+
+Record #1: 1-6 Site ID, 10-61 Site Name, 62-65 Species Code, optional ID#'s
+Record #2: 1-6 Site ID, 10-22 State/Country, 23-30 Species, 41-45 Elevation, 48-57 Lat-Long, 68-76 1st & last Year
+Note: lat-lons are in degrees and minutes, ddmm or dddmm
+Record #3: 1-6 Site ID, 10-72 Lead Investigator, 73-80 comp. date
+
+Chronology Data, Records 4-??
+
+Site ID# column 1-6
+Decade column 7-10
+Index Value-Sample Number* pairs of values, columns 11-80, 10(I4+I3)
+TRL ID#(optional) column 82-88
+
+*Index Values, columns 11-14,18-21,25-28,32-35,etc
+# of samples used in calculating chronology, columns 15-17,22-24,29-31,36-38,etc.
+Example:1450 670 171018 17 897 18...
+Here, 670 is the ring-width index value for the year 1450, with a sample size of 17;
+1018 is the ring-width index value for the year 1451, with a sample size of 17;
+897 is the ring-width index value for the year 1452, with a sample size of 18
+
+
+Chronology Statistics, Last Record, Optional:
+Site ID# column 1-6
+Number of Years column 8-10
+First Order Autocorrelation column 13-16
+Standard Deviation column 19-22
+Mean Sensitivity column 25-28
+Mean Index Value column 29-35
+Sum of Indices column 37-44
+Sum of Squares of Indices column 46-53
+Max# of series column 62-63
+
+
+ITRDB Species Codes
+
+The complete list of species codes was compiled by Henri D. Grissino-Mayer, 
+and is available via his Ultimate Tree-Ring Web Pages.
+
+
+Key to Data Type Codes
+
+The majority of ring measurements in the ITRDB are of the width of the annual ring. 
+However, some of the series are measurements of portions of the annual ring, namely 
+Earlywood or Springwood, and Latewood. The Earlywood appears light in color due to 
+less dense cell walls, and is formed in the earlier part of the growing season. 
+The Latewood, darker due to more dense cell walls, is formed later in the growing season. 
+Some researchers measure wood density in addition to width, and density measurements 
+can also made on the Earlywood and Latewood portions of the annual ring, 
+as well as the as maximum and minimum density over the entire ring. 
+Below is a table of the codes used to designate the type of measurement contained 
+within a data file. The filename convention is a site code, optionally followed by 
+a measurement and/or a chronology type. Default values are ringwidth measurement type 
+and standard chronology (as described above), and these types are not coded into the filenames. 
+For example, the ringwidth measurement file and standard chronology file for site CO512 
+are co512.rwl and co512.crn. The earlywood measurements file is co512e.rwl, and the latewood 
+arstan chronology file is co512la.crn. A table of the codes used:
+
+Tree Ring Measurement Type Codes
+Code   Measurement Type
+D     Total Ring Density
+E     Earlywood Width
+I     Earlywood Density
+L     Latewood Width
+N     Minimum Density
+R     Ring Width
+T     Latewood Density
+X     Maximum Density
+P     Latewood Percent
+Tree Ring Chronology Type Codes
+Code   Chronology Type
+A     ARSTND
+P     Low Pass Filter
+R     Residual
+S     Standard
+W     Re-Whitened Residual
+N     Measurements Only
+
+
+References
+Cook, E.R., and Kairiukstis, L.A., eds. 1990. 
+Methods of Dendrochronology. 
+Kluwer Academic Publishers, 101 Philip Drive, Norwell, MA 02061 USA, 
+or P.O. Box 17, 3300 AA Dordrecht, The Netherlands.
+
+Cook, E.R. 1985. 
+A Time Series Approach to Tree-Ring Standardization. 
+PhD Dissertation. University of Arizona, Tucson, AZ, USA
+
+Esper, J., Cook, E.R., Krusic, P.J., Peters, K., Schweingruber, F.H. 2003. 
+Tests of the RCS method for preserving low-frequency variability in long tree-ring chronologies. 
+Tree-Ring Research 59(2): 81-98.
+
+Fritts, H. C. 1976. Tree Rings and Climate. 
+Academic Press LTD., 24/28 Oval Road, London NW1, 
+or 111 Fifth Avenue, New York NY 10003.
+
+Hughes, M.K. et al. 1982. 
+Climate from Tree Rings. 
+Cambridge University Press, Cambridge, UK. 
