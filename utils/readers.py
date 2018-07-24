@@ -1,30 +1,36 @@
-from enum import Enum
+import re
 
- 
 CENTI_MM = 0.01
 MILLI_MM = 0.001
 
 
-class RWLReader: 
+class RwlReader: 
     @staticmethod
     def get_units(content): 
         if '-9999' in content: 
             return MILLI_MM
-        return CENTI_MM
+        elif '999': 
+            return CENTI_MM
+        else: 
+            return 'NA'
+    
+    @staticmethod
+    def get_content(f): 
+        with open(f, 'r') as fobj: 
+            return fobj.read()
 
-    def __init__(self, rwl_file): 
-        self.rwl_file = rwl_file
-        self.get_metadata() 
+    @staticmethod
+    def get_header(f): 
+        return RwlReader.get_content(f).split('\n')[:3]
 
-    def get_content(self): 
-        with open(self.rwl_file, 'r') as f: 
-            return f.read()
-
-    def get_header(self): 
-        return self.get_content().split('\n')[:3]
+    def __init__(self, f): 
+        self.f = f
+        self.content = RwlReader.get_content(self.f)
+        self.units = RwlReader.get_units(self.content)
+        self.get_metadata()
 
     def get_metadata(self): 
-        header = self.get_header() 
+        header = self.get_header(self.f) 
         self.site_id = header[0][:7]
         self.site_name = header[0][7:61].strip()
         self.species_code = header[0][61:].strip()
@@ -32,10 +38,9 @@ class RWLReader:
         self.species = header[1][22:42].strip()
         self.elevation = header[1][42:47].strip()
         self.coordinates = header[1][47:67].strip().replace('_', '')
-        self.year_range = header[1][67:].strip().replace(' ', ' - ')
+        self.year_range = map(int, header[1][67:].strip().split(' '))
         self.investigator = header[2][7:70].strip()
-        self.comp_date = header[2][70:].strip()
-        self.units = RWLReader.get_units(self.get_content())
+        self.comp_date = header[2][70:].strip() 
 
     def print_metadata(self):
         print """
@@ -43,7 +48,7 @@ class RWLReader:
         
         Site ID: {} Site Name: {}   Location: {}    Investigator: {}
 
-        Species: {} Species Code: {}    Units: {}
+        Species: {} Species Code: {}    Units: {}mm
 
         Elevation: {}   Coordinates: {} Year Range: {}  Comp. Date: {}
 
@@ -52,10 +57,35 @@ class RWLReader:
         **********************************************
         """.format(self.site_id, self.site_name, self.location, 
             self.investigator, self.species, self.species_code,
-            self.units, self.elevation, self.coordinates, self.year_range, self.comp_date, self.rwl_file)
+            self.units, self.elevation, self.coordinates, self.year_range, self.comp_date, self.f)
 
 
-reader = RWLReader(r"C:\Users\Mark\programming_projects\extra_curricular\gdp_temperature_project\results\treering_data_width\11836\104980115_2018-07-09\data\pub\data\paleo\treering\measurements\northamerica\usa\nc022.rwl")
+class CrnReader(RwlReader): 
+    @staticmethod
+    def split_row(row): 
+        site_id = row[:6]
+        decade = int(row[6:10].strip())
+        records = [(int(col[:4]), int(col[4:])) for col in re.findall(r'.{7}', row[10:])]
+        return site_id, decade, records
+
+    def __init__(self, f): 
+        self.f = f
+        RwlReader.__init__(self, self.f)
+
+    def get_data(self):
+        for row in self.content.split('\n')[3:-1]:
+            print CrnReader.split_row(row)
+
+         
+
+
+
+
+
+
+
+
+reader = CrnReader(r"E:\gdp_temperature_project\results\treering_data_width\20424\256719762_2018-07-09\data\pub\data\paleo\treering\chronologies\northamerica\usa\nm606.crn")
 # print reader
-reader.print_metadata()
+reader.get_data()
     
