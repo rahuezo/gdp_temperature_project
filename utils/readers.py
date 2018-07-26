@@ -23,6 +23,14 @@ class RwlReader:
     def get_header(f): 
         return RwlReader.get_content(f).split('\n')[:3]
 
+    @staticmethod
+    def split_row(row): 
+        core_id = row[:6].strip()
+        decade = row[6:12].strip()
+        data = row[12:].strip().split()
+
+        return core_id, decade, data
+
     def __init__(self, f): 
         self.f = f
         self.content = RwlReader.get_content(self.f)
@@ -38,9 +46,13 @@ class RwlReader:
         self.species = header[1][22:42].strip()
         self.elevation = header[1][42:47].strip()
         self.coordinates = header[1][47:67].strip().replace('_', '')
-        self.year_range = map(int, header[1][67:].strip().split(' '))
+        self.year_range = header[1][67:].strip()
         self.investigator = header[2][7:70].strip()
         self.comp_date = header[2][70:].strip() 
+
+    def get_data(self):
+        for row in self.content.split('\n')[3:-1]:
+            yield RwlReader.split_row(row)
 
     def print_metadata(self):
         print """
@@ -76,16 +88,4 @@ class CrnReader(RwlReader):
         for row in self.content.split('\n')[3:-1]:
             print CrnReader.split_row(row)
 
-         
-
-
-
-
-
-
-
-
-reader = CrnReader(r"E:\gdp_temperature_project\results\treering_data_width\20424\256719762_2018-07-09\data\pub\data\paleo\treering\chronologies\northamerica\usa\nm606.crn")
-# print reader
-reader.get_data()
     
