@@ -44,7 +44,7 @@ class RwlReader:
 
     def get_metadata(self): 
         header = self.get_header(self.f) 
-        self.site_id = header[0][:9].strip()
+        self.site_id = header[0][:7].strip()
         self.site_name = header[0][9:61].strip()
         self.species_code = header[0][61:].strip()
         self.location = header[1][9:22].strip()
