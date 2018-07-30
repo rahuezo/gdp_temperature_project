@@ -49,11 +49,11 @@ class RwlReader:
         self.species_code = header[0][61:].strip()
         self.location = header[1][7:22].strip()
         self.species = header[1][22:41].strip()
-        self.elevation = header[1][41:47].strip()
+        self.elevation = header[1][41:44].strip()
         self.coordinates = header[1][47:56].strip().replace('_', '')
-        self.year_range = header[1][66:].strip().replace(' ', '-')
-        self.investigator = header[2][7:70].strip()
-        self.comp_date = header[2][70:].strip() 
+        self.year_range = header[1][67:].strip().replace(' ', '-')
+        self.investigator = header[2][7:71].strip()
+        self.comp_date = header[2][71:].strip() 
 
     def get_db_row(self): 
         return (self.site_id, self.site_name, self.species_code, self.location, 
