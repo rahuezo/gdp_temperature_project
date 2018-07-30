@@ -44,15 +44,15 @@ class RwlReader:
 
     def get_metadata(self): 
         header = self.get_header(self.f) 
-        self.site_id = header[0][:7].strip()
-        self.site_name = header[0][7:61].strip()
+        self.site_id = header[0][:9].strip()
+        self.site_name = header[0][9:61].strip()
         self.species_code = header[0][61:].strip()
-        self.location = header[1][7:22].strip()
+        self.location = header[1][9:22].strip()
         self.species = header[1][22:41].strip()
         self.elevation = header[1][41:44].strip()
         self.coordinates = header[1][47:56].strip().replace('_', '')
         self.year_range = header[1][67:].strip().replace(' ', '-')
-        self.investigator = header[2][7:71].strip()
+        self.investigator = header[2][9:71].strip()
         self.comp_date = header[2][71:].strip() 
 
     def get_db_row(self): 

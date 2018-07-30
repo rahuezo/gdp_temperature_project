@@ -32,14 +32,17 @@ for rwl_file in rwl_finder(rwls_path):
     reader = RwlReader(rwl_file)
     print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
     print "\t\tStarting transaction..."
-    db.cursor.execute('BEGIN')
-    db.insert("""INSERT INTO {} VALUES({})""".format(tb, ','.join(['?' for _ in xrange(15)])), reader.get_data(), many=True) 
-    db.connection.commit()
-    print "\t\tFinished transaction!"
 
+    try: 
+        db.cursor.execute('BEGIN')
+        db.insert("""INSERT INTO {} VALUES({})""".format(tb, ','.join(['?' for _ in xrange(15)])), reader.get_data(), many=True) 
+        db.connection.commit()
+        print "\t\tFinished transaction!"
+    except Exception as e: 
+        print e
+        
     elapsed_time = time.time() - start_time
-    total_time += elapsed_time
-
+    total_time += elapsed_time 
     print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
 
     file_count += 1
