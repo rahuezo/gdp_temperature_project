@@ -71,8 +71,11 @@ class RwlReader:
                 # print "ValueError: {}\n".format(row)
                 continue
 
-            for i, ring_width in enumerate(data): 
-                ring_width = int(ring_width)
+            for i, ring_width in enumerate(data):
+                try:  
+                    ring_width = int(ring_width)
+                except: 
+                    continue
                 if ring_width != self.missing_value_code:             
                     year = decade + i
                     yield self.get_db_row() + (core_id, year, ring_width)
