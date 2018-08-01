@@ -1,0 +1,45 @@
+table 1: observation
+observation_id (pk, created, not from file)
+core_id (fk:trees)
+year (int, from file)
+ring_width (decimal, calculated (units, width from file))
+
+table 2: trees
+core_id (pk, nvarchar(7), from file)
+species_id (fk:species)
+site_id (fk:plots)
+? width
+? observation_obs
+
+table 3: species
+species_id (pk, nvarchar(4), from file)
+species_name (string, from file)
+
+table 4: sites
+site_id (pk, nvarchar(7), from file)
+site_name (string, from file)
+location (string, from file)
+elevation (int, from file)
+latitude (decimal, calculated (coordinates from file))
+longitude (decimal, calculated (coordinates from file))
+? Trees_tree_i
+
+
+LOOP 1:
+	set core_id;
+	set species_id;
+	set site_id;
+	
+	if core_id not in dic
+		add DICTIONARY<core_id, Tuple<species_id, site_id>>
+	if species_id not in dic
+		set species_name;
+		add DICTIONARY<species_id, species_name>
+	if site_id not in dic
+		set site_name;
+		set location;
+		set elevation;
+		set coordinates;
+		add DICTIONARY<site_id, Tuple<site_name, location, elevation, coordinates>>
+
+	

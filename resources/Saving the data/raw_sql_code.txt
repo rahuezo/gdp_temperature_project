@@ -1,0 +1,37 @@
+create table species (
+	species_id nvarchar(4)  primary key not null,
+	species_name nvarchar(8) null
+)
+;
+
+create table sites (
+	site_id nvarchar(7)  primary key not null,
+	site_name nvarchar(52) null,
+	location nvarchar(13) null,
+	elevation nvarchar(5) null,
+	coordinates nvarchar(10) null
+)
+;
+
+create table trees (
+	tree_id  nvarchar(7) primary key not null,
+	species_id nvarchar(4) references species(species_id) not null,
+	site_id nvarchar(4) references sites(site_id) not null
+)
+;
+
+create table observations (
+	observation_id integer primary key autoincrement not null,
+	tree_id nvarchar(4) references trees(tree_id) not null,
+	year int null,
+	width int
+)
+;
+
+insert into species select species_code, species_name from `tree_ring_widths` group by species_code;
+insert into sites select site_id, site_name, location, elevation, coordinates  from `tree_ring_widths` group by site_id;
+insert into trees select core_id, species_code, site_id from `tree_ring_widths` group by core_id;
+insert into observations select null, core_id, year, ring_width from `tree_ring_widths` group by  core_id, year, ring_width;
+
+delete from tree_ring_widths;
+drop table tree_ring_widths;
