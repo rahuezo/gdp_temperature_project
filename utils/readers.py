@@ -39,14 +39,14 @@ class RwlReader:
     def __init__(self, f): 
         self.f = f
         self.content = RwlReader.get_content(self.f)
-        self.units, self.missing_value_code = RwlReader.get_units(self.content)
+        self.units, self.missing_value_id = RwlReader.get_units(self.content)
         self.get_metadata()
 
     def get_metadata(self): 
         header = self.get_header(self.f) 
         self.site_id = header[0][:7].strip()
         self.site_name = header[0][9:61].strip()
-        self.species_code = header[0][61:].strip()
+        self.species_id = header[0][61:].strip()
         self.location = header[1][9:22].strip()
         self.species = header[1][22:41].strip()
         self.elevation = header[1][41:44].strip()
@@ -56,9 +56,8 @@ class RwlReader:
         self.comp_date = header[2][71:].strip() 
 
     def get_db_row(self): 
-        return (self.site_id, self.site_name, self.species_code, self.location, 
-            self.species, self.elevation, self.coordinates, self.year_range, 
-            self.investigator, self.comp_date, self.units, self.missing_value_code)
+        return (self.site_id, self.site_name, self.species_id, self.location, 
+            self.species, self.elevation, self.coordinates, self.units, self.missing_value_id)
 
     def get_data(self):
         for row in self.content.split('\n')[3:-1]:
@@ -76,7 +75,7 @@ class RwlReader:
                     ring_width = int(ring_width)
                 except: 
                     continue
-                if ring_width != self.missing_value_code:             
+                if ring_width != self.missing_value_id:             
                     year = decade + i
                     yield self.get_db_row() + (core_id, year, ring_width)
 
@@ -86,7 +85,7 @@ class RwlReader:
         
         Site ID: {} Site Name: {}   Location: {}    Investigator: {}
 
-        Species: {} Species Code: {}    Units: {}mm
+        Species: {} Species id: {}    Units: {}mm
 
         Elevation: {}   Coordinates: {} Year Range: {}  Comp. Date: {}
 
@@ -94,7 +93,7 @@ class RwlReader:
 
         **********************************************
         """.format(self.site_id, self.site_name, self.location, 
-            self.investigator, self.species, self.species_code,
+            self.investigator, self.species, self.species_id,
             self.units, self.elevation, self.coordinates, self.year_range, self.comp_date, self.f)
 
 
