@@ -4,6 +4,7 @@ from utils.database import Database
 
 import tkFileDialog as fd
 import os, time
+import cPickle as pk
 
 
 rwls_path = fd.askdirectory(title="Choose rwls root dir")
@@ -46,7 +47,7 @@ observations_tb = db.create_table("observations",
 
 
 
-print "Started processing rwl files..."
+print "Started processing rwl files...\n"
 
 total_time = 0 
 overall_start_time = time.time()
@@ -56,53 +57,63 @@ species_ids = {}
 core_ids = {}
 site_ids = {}
 
-# (self.site_id, self.site_name, self.species_id, self.location, 
-#             self.species, self.elevation, self.coordinates, self.units, self.missing_value_id, core_id, year, ring_width)
+if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl'), os.path.exists('sites_dict.pkl')]): 
+    print "Grabbing data for PK tables from scratch..."
 
-print "Grabbing data for PK tables..."
+    for rwl_file in rwl_finder(rwls_path): 
+        start_time = time.time()
 
-for rwl_file in rwl_finder(rwls_path): 
-    start_time = time.time()
-
-    
-    try:
-        reader = RwlReader(rwl_file)
-        print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
-
-    except Exception as e: 
-        print e
-        continue
-
-
-    for row in reader.get_data():
-        species_id = row[2]
-
-        core_id = row[-3]
-        site_id = row[0]
         
+        try:
+            reader = RwlReader(rwl_file)
+            print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
+
+        except Exception as e: 
+            print e
+            continue
 
 
-        if core_id not in core_ids: 
-            core_ids[core_id] = (species_id, site_id)
+        for row in reader.get_data():
+            species_id = row[2]
 
-        if species_id not in species_ids: 
-            species_name = row[4]
+            core_id = row[-3]
+            site_id = row[0]
             
-            species_ids[species_id] = species_name
 
-        if site_id not in site_ids: 
-            site_name = row[1]
-            location = row[3]
-            elevation = row[5]
-            coordinates = row[6]
 
-            site_ids[site_id] = (site_name, location, elevation, coordinates)
-        
-    elapsed_time = time.time() - start_time
-    total_time += elapsed_time 
-    print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
+            if core_id not in core_ids: 
+                core_ids[core_id] = (species_id, site_id)
 
-    file_count += 1
+            if species_id not in species_ids: 
+                species_name = row[4]
+                
+                species_ids[species_id] = species_name
+
+            if site_id not in site_ids: 
+                site_name = row[1]
+                location = row[3]
+                elevation = row[5]
+                coordinates = row[6]
+
+                site_ids[site_id] = (site_name, location, elevation, coordinates)
+            
+        elapsed_time = time.time() - start_time
+        total_time += elapsed_time 
+        print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
+
+        file_count += 1
+
+    with open('species_dict.pkl', 'wb') as species_pkf, open('cores_dict.pkl', 'wb') as cores_pkf, open('sites_dict.pkl', 'wb') as sites_pkf:
+        pk.dump(species_ids, species_pkf, protocol=pk.HIGHEST_PROTOCOL)
+        pk.dump(core_ids, cores_pkf, protocol=pk.HIGHEST_PROTOCOL)
+        pk.dump(site_ids, sites_pkf, protocol=pk.HIGHEST_PROTOCOL)
+else: 
+    print "Loading data for PK tables from pickles..."
+    
+    with open('species_dict.pkl', 'rb') as species_pkf, open('cores_dict.pkl', 'rb') as cores_pkf, open('sites_dict.pkl', 'rb') as sites_pkf:
+        species_ids = pk.load(species_pkf)
+        core_ids = pk.load(cores_pkf)
+        site_ids = pk.load(sites_pkf)
 
 print "Populating PK tables..."
 
