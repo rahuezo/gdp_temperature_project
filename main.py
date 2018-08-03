@@ -31,7 +31,6 @@ sites_tb = db.create_table("sites",
 trees_tb = db.create_table("trees", 
     """
     tree_id NVARCHAR(7) PRIMARY KEY NOT NULL,
-    ring_width REAL NOT NULL,
     species_id NVARCHAR(4) REFERENCES species(species_id) NOT NULL,
     site_id NVARCHAR(4) REFERENCES sites(site_id) NOT NULL
     """)
@@ -40,8 +39,8 @@ observations_tb = db.create_table("observations",
     """
     observation_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     tree_id NVARCHAR(4) REFERENCES trees(tree_id) NOT NULL,
-    ring_width REAL REFERENCES trees(ring_width) NOT NULL,
-    year INT NULL
+    year INT NULL,
+    ring_width REAL NOT NULL
     """)
 
 
@@ -78,8 +77,8 @@ for rwl_file in rwl_finder(rwls_path):
 
 
         if core_id not in core_ids: 
-            width = row[-1]*row[-5]
-            core_ids[core_id] = (width, species_id, site_id)
+            # width = row[-1]*row[-5]
+            core_ids[core_id] = (species_id, site_id)
 
         if species_id not in species_ids: 
             species_name = row[4]
@@ -133,20 +132,65 @@ db.cursor.execute('BEGIN')
 for core_id in core_ids: 
     values = (core_id,) + core_ids[core_id]
     
-    db.insert("""INSERT INTO {} VALUES(?,?,?,?)""".format(trees_tb), values)
+    db.insert("""INSERT INTO {} VALUES(?,?,?)""".format(trees_tb), values)
 
 db.connection.commit()
 
 # Inserting into observations table
-print "\tPopulating observations..."
+print "\tPopulating observations...\n"
 
-db.cursor.execute('BEGIN')
+# print "Started processing rwl files..."
 
-db.insert("""INSERT INTO {} VALUES(?,?,?,?)""")
+file_count = 1
 
-db.connection.commit()
+# (self.site_id, self.site_name, self.species_id, self.location, 
+#             self.species, self.elevation, self.coordinates, self.units, self.missing_value_id, core_id, year, ring_width)
+
+
+for rwl_file in rwl_finder(rwls_path): 
+    start_time = time.time()
+
+    reader = RwlReader(rwl_file)
+    print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
+    print "\t\tStarting transaction..."
+
+    db.cursor.execute('BEGIN')
+
+    for row in reader.get_data():
+        core_id = row[-3]
+        year = row[-2]
+        ring_width = row[-1]*row[-5]
+        values = (core_id, year, ring_width)
+
+        db.insert("""INSERT INTO {} VALUES(NULL,?,?,?)""".format(observations_tb), values)
+
+    db.connection.commit()        
+        
+    elapsed_time = time.time() - start_time
+    total_time += elapsed_time 
+    print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
+
+    file_count += 1
+
+
+# db.cursor.execute('BEGIN')
+
+# db.insert("""INSERT INTO {} VALUES(?,?,?,?)""")
+
+# db.connection.commit()
 
 print "Finished processing rwl files in {}s".format(round(total_time, 2))        
+
+
+
+
+
+
+
+
+
+
+
 
 
 # print species_ids
