@@ -64,9 +64,15 @@ print "Grabbing data for PK tables..."
 for rwl_file in rwl_finder(rwls_path): 
     start_time = time.time()
 
-    reader = RwlReader(rwl_file)
-    print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
-    print "\t\tStarting transaction..."
+    
+    try:
+        reader = RwlReader(rwl_file)
+        print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
+
+    except Exception as e: 
+        print e
+        continue
+
 
     for row in reader.get_data():
         species_id = row[2]
@@ -77,7 +83,6 @@ for rwl_file in rwl_finder(rwls_path):
 
 
         if core_id not in core_ids: 
-            # width = row[-1]*row[-5]
             core_ids[core_id] = (species_id, site_id)
 
         if species_id not in species_ids: 
@@ -150,8 +155,14 @@ file_count = 1
 for rwl_file in rwl_finder(rwls_path): 
     start_time = time.time()
 
-    reader = RwlReader(rwl_file)
-    print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
+    try:
+        reader = RwlReader(rwl_file)
+        print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
+
+    except Exception as e: 
+        print e
+        continue
+        
     print "\t\tStarting transaction..."
 
     db.cursor.execute('BEGIN')
