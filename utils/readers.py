@@ -17,7 +17,7 @@ class RwlReader:
     @staticmethod
     def get_content(f): 
         with open(f, 'r') as fobj: 
-            return fobj.read()
+            return fobj.read().encode('ascii', errors='ignore')
 
     @staticmethod
     def get_header(f): 
