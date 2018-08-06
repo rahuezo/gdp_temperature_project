@@ -26,21 +26,23 @@ sites_tb = db.create_table("sites",
     site_name NVARCHAR(52) NULL, 
     location NVARCHAR(13) NULL,
     elevation NVARCHAR(5) NULL,
-    coordinates NVARCHAR(10) NULL
+    coordinates NVARCHAR(11) NULL
     """)
 
 trees_tb = db.create_table("trees", 
     """
     tree_id NVARCHAR(7) PRIMARY KEY NOT NULL,
     species_id NVARCHAR(4) REFERENCES species(species_id) NOT NULL,
-    site_id NVARCHAR(4) REFERENCES sites(site_id) NOT NULL
+    site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL
     """)
 
 observations_tb = db.create_table("observations", 
     """
     observation_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    tree_id NVARCHAR(4) REFERENCES trees(tree_id) NOT NULL,
+    tree_id NVARCHAR(7) REFERENCES trees(tree_id) NOT NULL,
+    site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL, 
     year INT NULL,
+    year_range NVARCHAR(10) NULL,
     ring_width REAL NOT NULL
     """)
 
@@ -180,11 +182,14 @@ for rwl_file in rwl_finder(rwls_path):
 
     for row in reader.get_data():
         core_id = row[-3]
+        site_id = row[0]
         year = row[-2]
+        year_range = reader.year_range
         ring_width = row[-1]*row[-5]
-        values = (core_id, year, ring_width)
 
-        db.insert("""INSERT INTO {} VALUES(NULL,?,?,?)""".format(observations_tb), values)
+        values = (core_id, site_id, year, year_range, ring_width)
+
+        db.insert("""INSERT INTO {} VALUES(NULL,?,?,?,?,?)""".format(observations_tb), values)
 
     db.connection.commit()        
         
