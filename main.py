@@ -58,6 +58,8 @@ core_ids = {}
 site_ids = {}
 
 errors_file = open('errors.csv', 'wb')
+writer = csv.writer(errors_file, delimiter=',')
+
 
 if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl'), os.path.exists('sites_dict.pkl')]): 
     print "Grabbing data for PK tables from scratch..."
@@ -72,7 +74,7 @@ if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl')
 
         except Exception as e: 
             print e
-            errors_file.writerow([rwl_file, e])
+            writer.writerow([rwl_file, e])
             continue
 
 
@@ -175,7 +177,7 @@ for rwl_file in rwl_finder(rwls_path):
 
     except Exception as e: 
         print e
-        errors_file.writerow([rwl_file, e])
+        writer.writerow([rwl_file, e])
 
         continue
         
