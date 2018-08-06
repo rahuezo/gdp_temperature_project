@@ -3,7 +3,7 @@ from utils.readers import RwlReader
 from utils.database import Database
 
 import tkFileDialog as fd
-import os, time
+import os, time, csv
 import cPickle as pk
 
 
@@ -47,8 +47,6 @@ observations_tb = db.create_table("observations",
     """)
 
 
-
-
 print "Started processing rwl files...\n"
 
 total_time = 0 
@@ -58,6 +56,8 @@ file_count = 1
 species_ids = {}
 core_ids = {}
 site_ids = {}
+
+errors_file = open('errors.csv', 'wb')
 
 if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl'), os.path.exists('sites_dict.pkl')]): 
     print "Grabbing data for PK tables from scratch..."
@@ -72,6 +72,7 @@ if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl')
 
         except Exception as e: 
             print e
+            errors_file.writerow([rwl_file, e])
             continue
 
 
@@ -174,6 +175,8 @@ for rwl_file in rwl_finder(rwls_path):
 
     except Exception as e: 
         print e
+        errors_file.writerow([rwl_file, e])
+
         continue
         
     print "\t\tStarting transaction..."
@@ -213,7 +216,7 @@ print "Finished processing rwl files in {}s".format(round(total_time, 2))
 
 
 
-
+errors_file.close()
 
 
 
