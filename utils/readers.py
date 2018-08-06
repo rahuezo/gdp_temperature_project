@@ -25,8 +25,8 @@ class RwlReader:
 
     @staticmethod
     def split_row(row): 
-        core_id = row[:7].strip()
-        decade = row[7:12].strip()
+        core_id = row[:8].strip()
+        decade = row[8:12].strip()
 
         try: 
             decade = int(decade)
@@ -44,16 +44,20 @@ class RwlReader:
 
     def get_metadata(self): 
         header = self.get_header(self.f) 
-        self.site_id = header[0][:7].strip()
+        self.site_id = header[0][:6].strip()
         self.site_name = header[0][9:61].strip()
-        self.species_id = header[0][61:].strip()
+        self.species_id = header[0][61:65].strip()
         self.location = header[1][9:22].strip()
-        self.species = header[1][22:41].strip()
-        self.elevation = header[1][41:44].strip()
-        self.coordinates = header[1][47:56].strip().replace('_', '')
-        self.year_range = header[1][67:].strip().replace(' ', '-')
-        self.investigator = header[2][9:71].strip()
-        self.comp_date = header[2][71:].strip() 
+        self.species = header[1][22:40].strip()        
+        self.elevation = header[1][40:45].strip().lower().replace('m', '')
+
+        if len(self.elevation.lower().strip()) == 0:
+            self.elevation = 0
+
+        self.coordinates = header[1][47:57].strip().replace('_', '')
+        self.year_range = header[1][67:76].strip().replace(' ', '-')
+        self.investigator = header[2][9:72].strip()
+        self.comp_date = header[2][72:80].strip() 
 
     def get_db_row(self): 
         return (self.site_id, self.site_name, self.species_id, self.location, 
