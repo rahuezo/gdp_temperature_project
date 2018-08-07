@@ -9,6 +9,7 @@ import cPickle as pk
 
 rwls_path = fd.askdirectory(title="Choose rwls root dir")
 
+
 if not os.path.exists('./results'): 
     os.makedirs('results')
 

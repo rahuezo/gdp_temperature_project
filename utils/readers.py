@@ -17,7 +17,7 @@ class RwlReader:
             return 'NA'
 
     @staticmethod
-    def detect_encoding(f, nlines=3): 
+    def detect_encoding(f, nlines=4): 
         i = 0
         with open(f, 'r') as fobj:
             content = []
@@ -28,7 +28,7 @@ class RwlReader:
                 i += 1
         encoding = chardet.detect(''.join(content))['encoding']
 
-        print "Encoding: {}".format(encoding)
+        # print "Encoding: {}".format(encoding)
         return encoding
 
             
