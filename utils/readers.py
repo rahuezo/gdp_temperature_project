@@ -1,4 +1,6 @@
 import re
+import codecs
+import chardet
 
 CENTI_MM = 0.01
 MILLI_MM = 0.001
@@ -13,11 +15,30 @@ class RwlReader:
             return (CENTI_MM, 999)
         else: 
             return 'NA'
-    
+
+    @staticmethod
+    def detect_encoding(f, nlines=3): 
+        i = 0
+        with open(f, 'r') as fobj:
+            content = []
+            for line in fobj: 
+                if i > nlines: 
+                    break 
+                content.append(line)            
+                i += 1
+        encoding = chardet.detect(''.join(content))['encoding']
+
+        print "Encoding: {}".format(encoding)
+        return encoding
+
+            
+
     @staticmethod
     def get_content(f): 
-        with open(f, 'r') as fobj: 
-            return fobj.read().encode('ascii', errors='ignore')
+        # with open(f, 'r') as fobj: 
+        #     return fobj.read().encode('ascii', errors='ignore') # OLD WAY
+        with codecs.open(f, 'r', encoding=RwlReader.detect_encoding(f)) as fobj: 
+            return fobj.read()
 
     @staticmethod
     def get_header(f): 
