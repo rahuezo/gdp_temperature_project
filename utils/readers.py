@@ -38,7 +38,7 @@ class RwlReader:
         # with open(f, 'r') as fobj: 
         #     return fobj.read().encode('ascii', errors='ignore') # OLD WAY
         with codecs.open(f, 'r', encoding=RwlReader.detect_encoding(f)) as fobj: 
-            return fobj.read()
+            return fobj.read().replace('\r\n', '\n').replace('\r', '\n')
 
     @staticmethod
     def get_header(f): 
@@ -61,10 +61,15 @@ class RwlReader:
         self.f = f
         self.content = RwlReader.get_content(self.f)
         self.units, self.missing_value_id = RwlReader.get_units(self.content)
+        print "Before metadata"
         self.get_metadata()
+        print "After metadata"
 
     def get_metadata(self): 
         header = self.get_header(self.f) 
+        print "Header"
+        print header
+        print "After Header"
         self.site_id = header[0][:6].strip()
         self.site_name = header[0][9:61].strip()
         self.species_id = header[0][61:65].strip()
