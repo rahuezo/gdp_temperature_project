@@ -18,7 +18,7 @@ def rwl_finder(path):
                 package['paleodata'].extend(files)
         
             if not all([len(package[key]) > 0 for key in package]): 
-                print "ERROR ", package
+                print "ERROR ", pdir, package
                 continue
             yield package
         
