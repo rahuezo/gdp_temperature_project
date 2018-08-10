@@ -19,9 +19,9 @@ def rwl_finder(path):
         
         if len(package['paleodata']) > 0: 
             yield package
-
-        print "ERROR ", pdir, package
-        continue
+        else: 
+            print "ERROR ", pdir, package
+            continue
         
         
             # for f in files: 
