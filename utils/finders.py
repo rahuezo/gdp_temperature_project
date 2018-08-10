@@ -5,7 +5,7 @@ def rwl_finder(path):
     path_dirs = [os.path.join(path, d) for d in os.listdir(path)]
 
     for pdir in path_dirs: 
-        package = {'paleoData':[], 'metadata':[], 'correlation':[]}
+        package = {'paleodata':[], 'metadata':[], 'correlation':[]}
 
         for root, dirs, files in os.walk(pdir): 
             if root.endswith('metadata'): 
@@ -14,10 +14,13 @@ def rwl_finder(path):
             if root.endswith('correlation-stats'): 
                 package['correlation'].extend(files)
 
-            if 'measurements' in root and all([f.endswith('.rwl') for f in files]): 
-                package['paleoData'].extend(files)
+            if 'measurements' in root and all([f.endswith('.rwl') for f in files]):         
+                package['paleodata'].extend(files)
         
-        print package
+            if not all([len(package[key]) > 0 for key in package]): 
+                continue
+            yield package
+        
             # for f in files: 
             #     printf
                 # if f.lower().endswith('.rwl'): 
@@ -26,4 +29,5 @@ def rwl_finder(path):
 p = fd.askdirectory(title="Choose path")
 
 
-rwl_finder(p)
+for i in rwl_finder(p): 
+    print i
