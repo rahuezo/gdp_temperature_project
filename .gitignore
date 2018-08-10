@@ -38,7 +38,7 @@ pip-delete-this-directory.txt
 # Program Folders/Files
 treering_data_width.zip
 results/
-.pkl
+*.pkl
 
 # Unit test / coverage reports
 htmlcov/
