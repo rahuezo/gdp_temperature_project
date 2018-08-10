@@ -17,10 +17,10 @@ def rwl_finder(path):
             if 'measurements' in root and all([f.endswith('.rwl') for f in files]):         
                 package['paleodata'].extend(files)
         
-            if not all([len(package[key]) > 0 for key in package]): 
-                print "ERROR ", pdir, package
-                continue
-            yield package
+        if not all([len(package[key]) > 0 for key in package]): 
+            print "ERROR ", pdir, package
+            continue
+        yield package
         
             # for f in files: 
             #     printf
