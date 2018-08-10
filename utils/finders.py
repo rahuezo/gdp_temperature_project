@@ -1,5 +1,5 @@
 import os
-
+import tkFileDialog as fd
 
 def rwl_finder(path): 
     path_dirs = [os.path.join(path, d) for d in os.listdir(path)]
@@ -23,5 +23,7 @@ def rwl_finder(path):
                 # if f.lower().endswith('.rwl'): 
                 #     yield os.path.join(root, f)
 
+p = fd.askdirectory(title="Choose path")
 
-rwl_finder(r"E:\gdp_temperature_project\results\treering_data_width")
+
+rwl_finder(p)
