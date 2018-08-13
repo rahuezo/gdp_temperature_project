@@ -12,20 +12,6 @@ def get_first(l):
         return l[0]
     return None
 
-#         self.site_id = header[0][:6].strip()
-#         self.site_name = header[0][9:61].strip()
-#         self.species_id = header[0][61:65].strip()
-#         self.location = header[1][9:22].strip()
-#         self.species = header[1][22:40].strip()        
-#         self.elevation = header[1][40:45].strip().lower().replace('m', '')
-
-#         if len(self.elevation.lower().strip()) == 0:
-#             self.elevation = 0
-
-#         self.coordinates = header[1][47:57].strip().replace('_', '')
-#         self.year_range = header[1][67:76].strip().replace(' ', '-')
-#         self.investigator = header[2][9:72].strip()
-#         self.comp_date =
 # {'correlation': [u'brit043cof.txt'], 'paleodata': [u'brit043.rwl'], 'metadata': [u'noaa-tree-2670.json']}
 
 class RwlReader: 
@@ -36,6 +22,8 @@ class RwlReader:
         self.site_id = self.site_name = self.species = self.species_id = self.elevation = self.coordinates = self.year_range = None
 
         self.set_header_from_metadata()
+        self.set_header_from_correlation()
+        self.set_header_from_rwl()
 
         print "site id: ", self.site_id
         print "site name: ", self.site_name
@@ -55,7 +43,7 @@ class RwlReader:
                     if 'siteName' in site_data: 
                         site_name = site_data['siteName']                 
                         if site_name and len(site_name) and self.site_name == None: 
-                            self.site_name = site_name.title()
+                            self.site_name = site_name.lower()
                     if 'geo' in site_data: 
                         geo = site_data['geo']
                         if 'geometry' in geo: 
@@ -83,12 +71,94 @@ class RwlReader:
                             if 'speciesCode' in species_data: 
                                 species_code = species_data['speciesCode']
                                 if species_code and len(species_code) and self.species_id == None: 
-                                    self.species_id = species_code
+                                    self.species_id = species_code.lower()
                             if 'commonName' in species_data: 
                                 common_name = species_data['commonName']
                                 if common_name and len(common_name) and self.species == None: 
-                                    self.species = ' '.join(common_name)
+                                    self.species = ' '.join(common_name).lower()
+    
+    def set_header_from_correlation(self):         
+        content = RwlReader.get_content(self.correlation_file) 
 
+        first_year = re.findall(r'Beginning year.*?:.*?([0-9]+)', content)
+        last_year = re.findall(r'Ending year.*?:.*?([0-9]+)', content)
+        site_name = re.findall(r'Site name.*?:(.*)', content)
+        species_info = re.findall(r'Species information.*?:(.*)', content)
+        latitude = re.findall(r'Latitude.*?:(.*)', content)
+        longitude = re.findall(r'Longitude.*?:(.*)', content)
+        elevation = re.findall(r'Elevation.*?:(.*)', content)
+
+        if first_year and last_year: 
+            first_year = get_first(first_year).strip()
+            last_year = get_first(last_year).strip()
+            if not self.year_range:
+                self.year_range = [first_year, last_year]
+        if site_name: 
+            site_name = get_first(site_name).strip().lower()
+            if not self.site_name: 
+                self.site_name = site_name
+        if species_info: 
+            species_info = get_first(species_info).split()
+            species_id = species_info[0].strip().lower()
+            species = ' '.join(species_info[1:]).strip().lower()
+            if species_id and species: 
+                if not self.species_id: 
+                    self.species_id = species_id
+                if not self.species: 
+                    self.species = species
+        if latitude and longitude: 
+            latitude = get_first(latitude).strip().lower()
+            longitude = get_first(longitude).strip().lower()
+            if not self.coordinates: 
+                self.coordinates = [latitude, longitude]
+        if elevation: 
+            elevation = get_first(elevation).strip().lower()
+            if not self.elevation and elevation.replace('m', ''):
+                self.elevation = elevation
+
+    def set_header_from_rwl(self): 
+        header = self.get_content(self.paleodata_file, nlines=3)
+
+        site_id = header[0][:6].strip().lower()
+        if site_id and not self.site_id: 
+            self.site_id = site_id
+
+        site_name = header[0][9:61].strip().lower()
+        if site_name and not self.site_name: 
+            self.site_name = site_name
+
+        species_id = header[0][61:65].strip().lower()
+        if species_id and not self.species_id: 
+            self.species_id = species_id 
+
+        species = header[1][22:40].strip().lower()
+        if species and not self.species: 
+            self.species = species
+
+        elevation = header[1][40:45].strip().lower().replace('m', '')
+        if elevation and not self.elevation: 
+            self.elevation = elevation
+
+        coordinates = header[1][47:57].strip().lower()
+
+        print "Coordinates from rwl: ", coordinates
+        year_range = header[1][67:76].strip().split(' ')
+
+        if year_range and len(year_range) > 1 and not self.year_range: 
+            self.year_range = year_range
+
+
+#         self.site_id = header[0][:6].strip()
+#         self.site_name = header[0][9:61].strip()
+#         self.species_id = header[0][61:65].strip()
+#         self.location = header[1][9:22].strip()
+#         self.species = header[1][22:40].strip()        
+#         self.elevation = header[1][40:45].strip().lower().replace('m', '')
+#         self.coordinates = header[1][47:57].strip().replace('_', '')
+#         self.year_range = header[1][67:76].strip().replace(' ', '-')
+#         self.investigator = header[2][9:72].strip()
+#         self.comp_date = header[2][72:80].strip()         
+        
 
     @staticmethod
     def get_units(content): 
@@ -100,7 +170,7 @@ class RwlReader:
             return 'NA'
     
     @staticmethod
-    def detect_encoding(f, nlines=4): 
+    def detect_encoding(f, nlines=40): 
         i = 0
         with open(f, 'r') as fobj:
             content = []
@@ -113,15 +183,19 @@ class RwlReader:
         return encoding
 
     @staticmethod
-    def get_content(f): 
+    def get_content(f, nlines=None): 
         with codecs.open(f, 'r', encoding=RwlReader.detect_encoding(f)) as fobj: 
-            return fobj.read().replace('\r\n', '\n').replace('\r', '\n')
+            content = fobj.read().replace('\r\n', '\n').replace('\r', '\n')
+            
+            if nlines: 
+                return content.split('\n')[:nlines]
+            return content
 
 
 package = {}
-package["metadata"] = [r"C:\Users\rahue\Programming\gdp_temperature_project\results\treering_width_data\11834\864602848_2018-07-09\metadata\noaa-tree-13816.json"]
-package['paleodata'] = [r"C:\Users\rahue\Programming\gdp_temperature_project\results\treering_width_data\11834\864602848_2018-07-09\data\pub\data\paleo\treering\measurements\northamerica\usa\nc020.rwl"]
-package['correlation'] = [r"C:\Users\rahue\Programming\gdp_temperature_project\results\treering_width_data\11834\864602848_2018-07-09\data\pub\data\paleo\treering\measurements\correlation-stats\nc020.txt"]
+package['metadata'] = [r"E:\gdp_temperature_project\results\treering_data_width\11991\1221034004_2018-07-09\metadata\noaa-tree-13993.json"]
+package['paleodata'] = [r"E:\gdp_temperature_project\results\treering_data_width\11991\1221034004_2018-07-09\data\pub\data\paleo\treering\measurements\northamerica\usa\vt011.rwl"]
+package['correlation'] = [r"E:\gdp_temperature_project\results\treering_data_width\11991\1221034004_2018-07-09\data\pub\data\paleo\treering\measurements\correlation-stats\vt011.txt"]
 
 
 
