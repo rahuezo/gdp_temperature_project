@@ -21,6 +21,8 @@ class RwlReader:
         self.paleodata_file = get_first(package['paleodata'])
         self.site_id = self.site_name = self.species = self.species_id = self.elevation = self.coordinates = self.year_range = None
 
+        self.units, self.missing_value_id = self.get_units(self.get_content(self.paleodata_file, raw=True))
+
         self.set_header_from_metadata()
         self.set_header_from_correlation()
         self.set_header_from_rwl()
@@ -32,6 +34,8 @@ class RwlReader:
         print "elevation: ", self.elevation
         print "coords: ", self.coordinates
         print "year range: ", self.year_range
+
+        print self.units
 
 
     def set_header_from_metadata(self): 
@@ -78,7 +82,7 @@ class RwlReader:
                                     self.species = ' '.join(common_name).lower()
     
     def set_header_from_correlation(self):         
-        content = RwlReader.get_content(self.correlation_file) 
+        content = RwlReader.get_content(self.correlation_file, raw=True) 
 
         first_year = re.findall(r'Beginning year.*?:.*?([0-9]+)', content)
         last_year = re.findall(r'Ending year.*?:.*?([0-9]+)', content)
@@ -117,7 +121,7 @@ class RwlReader:
                 self.elevation = elevation
 
     def set_header_from_rwl(self): 
-        header = self.get_content(self.paleodata_file, nlines=3)
+        header = self.get_content(self.paleodata_file, end=3)
 
         site_id = header[0][:6].strip().lower()
         if site_id and not self.site_id: 
@@ -147,19 +151,35 @@ class RwlReader:
         if year_range and len(year_range) > 1 and not self.year_range: 
             self.year_range = year_range
 
+    def get_data(self): 
+        paleodata_rows = self.get_content(self.paleodata_file, start=3)
 
-#         self.site_id = header[0][:6].strip()
-#         self.site_name = header[0][9:61].strip()
-#         self.species_id = header[0][61:65].strip()
-#         self.location = header[1][9:22].strip()
-#         self.species = header[1][22:40].strip()        
-#         self.elevation = header[1][40:45].strip().lower().replace('m', '')
-#         self.coordinates = header[1][47:57].strip().replace('_', '')
-#         self.year_range = header[1][67:76].strip().replace(' ', '-')
-#         self.investigator = header[2][9:72].strip()
-#         self.comp_date = header[2][72:80].strip()         
-        
+        def split_row(row): 
+            core_id = row[:8].strip().lower()
+            decade = row[8:12].strip()
+            data = row[12:].strip().split()
+            
+            return core_id, decade, data
 
+        for row in paleodata_rows:  
+            core_id, decade, data = split_row(row)
+            for i, ring_width in enumerate(data):
+                try:  
+                    ring_width = int(ring_width)
+                except: 
+                    continue
+
+                try: 
+                    decade = int(decade)
+
+                except: 
+                    continue
+
+                if ring_width != self.missing_value_id:             
+                    year = decade + i
+                    yield (self.site_id, self.site_name, self.species, self.species_id, self.elevation, 
+                            self.coordinates, self.year_range, core_id, year, round(ring_width*self.units, 6))
+            
     @staticmethod
     def get_units(content): 
         if '-9999' in content: 
@@ -183,25 +203,28 @@ class RwlReader:
         return encoding
 
     @staticmethod
-    def get_content(f, nlines=None): 
+    def get_content(f, start=0, end=None, raw=False): 
         with codecs.open(f, 'r', encoding=RwlReader.detect_encoding(f)) as fobj: 
             content = fobj.read().replace('\r\n', '\n').replace('\r', '\n')
             
-            if nlines: 
-                return content.split('\n')[:nlines]
-            return content
+            if raw: 
+                return content
+            return content.split('\n')[start:end]
 
 
-package = {}
-package['metadata'] = [r"E:\gdp_temperature_project\results\treering_data_width\11991\1221034004_2018-07-09\metadata\noaa-tree-13993.json"]
-package['paleodata'] = [r"E:\gdp_temperature_project\results\treering_data_width\11991\1221034004_2018-07-09\data\pub\data\paleo\treering\measurements\northamerica\usa\vt011.rwl"]
-package['correlation'] = [r"E:\gdp_temperature_project\results\treering_data_width\11991\1221034004_2018-07-09\data\pub\data\paleo\treering\measurements\correlation-stats\vt011.txt"]
+# package = {}
+# package['metadata'] = [r"C:\Users\Rudy\programming_projects\extra_curricular\gdp_temperature_project\results\treering_data_width\11990\440359102_2018-07-09\metadata\noaa-tree-13992.json"]
+# package['paleodata'] = [r"C:\Users\Rudy\programming_projects\extra_curricular\gdp_temperature_project\results\treering_data_width\11990\440359102_2018-07-09\data\pub\data\paleo\treering\measurements\northamerica\usa\vt010.rwl"]
+# package['correlation'] = [r"C:\Users\Rudy\programming_projects\extra_curricular\gdp_temperature_project\results\treering_data_width\11990\440359102_2018-07-09\data\pub\data\paleo\treering\measurements\correlation-stats\vt010.txt"]
 
 
 
-reader = RwlReader(package)
-# reader.set_header_from_metadata()
+# reader = RwlReader(package)
+# # reader.set_header_from_metadata()
 
+
+# for row in reader.get_data(): 
+#     print row
 
 
 
