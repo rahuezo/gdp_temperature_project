@@ -61,6 +61,7 @@ if not os.path.exists('./results'):
 # errors_file = open('errors.csv', 'wb')
 # writer = csv.writer(errors_file, delimiter=',')
 
+import sys
 
 if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl'), os.path.exists('sites_dict.pkl')]): 
     print "Grabbing data for PK tables from scratch..."
@@ -77,9 +78,14 @@ if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl')
                 'metadata': package['metadata']
             }
 
-            rwl_reader = RwlReader(package)
+            try: 
+                rwl_reader = RwlReader(package)
+            except: 
+                sys.exit()
+                print paleodata_file
+                break 
 
-            
+
 
         
     #     try:

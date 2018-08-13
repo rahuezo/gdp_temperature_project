@@ -64,6 +64,7 @@ class RwlReader:
                                     self.elevation = max_elevation
                     if 'paleoData' in site_data: 
                         paleodata = get_first(site_data['paleoData'])
+                        
                         if 'earliestYear' in paleodata and 'mostRecentYear' in paleodata: 
                             first_year = paleodata['earliestYear']
                             last_year = paleodata['mostRecentYear']
@@ -72,15 +73,17 @@ class RwlReader:
 
                         if 'species' in paleodata: 
                             species_data = get_first(paleodata['species'])
-                            if 'speciesCode' in species_data: 
-                                species_code = species_data['speciesCode']
-                                if species_code and len(species_code) and self.species_id == None: 
-                                    self.species_id = species_code.lower()
-                            if 'commonName' in species_data: 
-                                common_name = species_data['commonName']
-                                if common_name and len(common_name) and self.species == None: 
-                                    self.species = ' '.join(common_name).lower()
-    
+
+                            if species_data: 
+                                if 'speciesCode' in species_data: 
+                                    species_code = species_data['speciesCode']
+                                    if species_code and len(species_code) and self.species_id == None: 
+                                        self.species_id = species_code.lower()
+                                if 'commonName' in species_data: 
+                                    common_name = species_data['commonName']
+                                    if common_name and len(common_name) and self.species == None: 
+                                        self.species = ' '.join(common_name).lower()
+        
     def set_header_from_correlation(self):         
         content = RwlReader.get_content(self.correlation_file, raw=True) 
 
