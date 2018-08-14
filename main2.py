@@ -13,53 +13,58 @@ rwls_path = fd.askdirectory(title="Choose rwls root dir")
 if not os.path.exists('./results'): 
     os.makedirs('results')
 
-# # Connect / Create results database
+# Connect / Create results database
 
-# db = Database('results/tree_ring_data.db')
+db = Database('results/tree_ring_data.db')
 
-# # Create all tables
+# Create all tables
 
-# species_tb = db.create_table("species", "species_id NVARCHAR(4) PRIMARY KEY NOT NULL, species_name NVARCHAR(8) NULL")
+species_tb = db.create_table("species", "species_id NVARCHAR(4) PRIMARY KEY NOT NULL, species_name NVARCHAR(8) NULL")
 
-# sites_tb = db.create_table("sites", 
-#     """
-#     site_id NVARCHAR(7) PRIMARY KEY NOT NULL, 
-#     site_name NVARCHAR(52) NULL, 
-#     location NVARCHAR(13) NULL,
-#     elevation NVARCHAR(5) NULL,
-#     coordinates NVARCHAR(11) NULL
-#     """)
+sites_tb = db.create_table("sites", 
+    """
+    site_id NVARCHAR(7) PRIMARY KEY NOT NULL, 
+    site_name NVARCHAR(52) NULL,     
+    elevation NVARCHAR(5) NULL,
+    latitude REAL NULL,
+    longitude REAL NULL
+    """)
 
-# trees_tb = db.create_table("trees", 
-#     """
-#     tree_id NVARCHAR(7) PRIMARY KEY NOT NULL,
-#     species_id NVARCHAR(4) REFERENCES species(species_id) NOT NULL,
-#     site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL
-#     """)
-
-# observations_tb = db.create_table("observations", 
-#     """
-#     observation_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-#     tree_id NVARCHAR(7) REFERENCES trees(tree_id) NOT NULL,
-#     site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL, 
-#     year INT NULL,
-#     year_range NVARCHAR(10) NULL,
-#     ring_width REAL NOT NULL
-#     """)
+# from sites_tb: location NVARCHAR(13) NULL,
 
 
-# print "Started processing rwl files...\n"
+trees_tb = db.create_table("trees", 
+    """
+    tree_id NVARCHAR(7) PRIMARY KEY NOT NULL,
+    species_id NVARCHAR(4) REFERENCES species(species_id) NOT NULL,
+    site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL
+    """)
 
-# total_time = 0 
-# overall_start_time = time.time()
-# file_count = 1
+observations_tb = db.create_table("observations", 
+    """
+    observation_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    tree_id NVARCHAR(7) REFERENCES trees(tree_id) NOT NULL,
+    site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL, 
+    year INT NULL,
+    first_year INT NULL,
+    last_year INT NULL,
+    ring_width REAL NOT NULL
+    """)
 
-# species_ids = {}
-# core_ids = {}
-# site_ids = {}
+# from observations_tb: year_range NVARCHAR(10) NULL,
 
-# errors_file = open('errors.csv', 'wb')
-# writer = csv.writer(errors_file, delimiter=',')
+print "Started processing rwl files...\n"
+
+total_time = 0 
+overall_start_time = time.time()
+file_count = 1
+
+species_ids = {}
+core_ids = {}
+site_ids = {}
+
+errors_file = open('errors.csv', 'wb')
+writer = csv.writer(errors_file, delimiter=',')
 
 import sys
 
@@ -67,7 +72,7 @@ if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl')
     print "Grabbing data for PK tables from scratch..."
 
     for package in rwl_finder(rwls_path): 
-        # start_time = time.time()
+        start_time = time.time()
         
         package_paleodata_files = package['paleodata']
 
@@ -80,58 +85,41 @@ if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl')
 
             try: 
                 rwl_reader = RwlReader(package)
-            except: 
-                sys.exit()
-                print paleodata_file
-                break 
+            except Exception as e: 
+                print e, paleodata_file
+                writer.writerow([paleodata_file, e])
+                continue
 
-
-
-        
-    #     try:
-    #         reader = RwlReader(rwl_file)
-    #         print "\tLoaded {}".format(os.path.split(rwl_file)[-1])
-
-    #     except Exception as e: 
-    #         print e
-    #         writer.writerow([rwl_file, e])
-    #         continue
-
-
-    #     for row in reader.get_data():
-    #         species_id = row[2]
-
-    #         core_id = row[-3]
-    #         site_id = row[0]
-            
-
-
-    #         if core_id not in core_ids: 
-    #             core_ids[core_id] = (species_id, site_id)
-
-    #         if species_id not in species_ids: 
-    #             species_name = row[4]
+            for row in rwl_reader.get_data(): 
+                site_id = row[0]
+                species_id = row[3]
+                core_id = row[-3]
                 
-    #             species_ids[species_id] = species_name
+                if core_id not in core_ids: 
+                    core_ids[core_id] = (species_id, site_id)
 
-    #         if site_id not in site_ids: 
-    #             site_name = row[1]
-    #             location = row[3]
-    #             elevation = row[5]
-    #             coordinates = row[6]
+                if species_id not in species_ids: 
+                    species_name = row[2]
+                    species_ids[species_id] = species_name
 
-    #             site_ids[site_id] = (site_name, location, elevation, coordinates)
+                if site_id not in site_ids: 
+                    site_name = row[1]
+                    elevation = row[4]
+                    latitude, longitude = row[5]
+                    # location = row[3] Do we need location if we have coordinates?
+
+                    site_ids[site_id] = (site_name, elevation, latitude, longitude)
             
-    #     elapsed_time = time.time() - start_time
-    #     total_time += elapsed_time 
-    #     print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
+            elapsed_time = time.time() - start_time
+            total_time += elapsed_time 
+            print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
 
-    #     file_count += 1
+            file_count += 1
 
-    # with open('species_dict.pkl', 'wb') as species_pkf, open('cores_dict.pkl', 'wb') as cores_pkf, open('sites_dict.pkl', 'wb') as sites_pkf:
-    #     pk.dump(species_ids, species_pkf, protocol=pk.HIGHEST_PROTOCOL)
-    #     pk.dump(core_ids, cores_pkf, protocol=pk.HIGHEST_PROTOCOL)
-    #     pk.dump(site_ids, sites_pkf, protocol=pk.HIGHEST_PROTOCOL)
+    with open('species_dict.pkl', 'wb') as species_pkf, open('cores_dict.pkl', 'wb') as cores_pkf, open('sites_dict.pkl', 'wb') as sites_pkf:
+        pk.dump(species_ids, species_pkf, protocol=pk.HIGHEST_PROTOCOL)
+        pk.dump(core_ids, cores_pkf, protocol=pk.HIGHEST_PROTOCOL)
+        pk.dump(site_ids, sites_pkf, protocol=pk.HIGHEST_PROTOCOL)
 else: 
     print "Loading data for PK tables from pickles..."
     
@@ -140,52 +128,100 @@ else:
         core_ids = pk.load(cores_pkf)
         site_ids = pk.load(sites_pkf)
 
-# print "Populating PK tables..."
+print "Populating PK tables..."
 
-# # Inserting into species table
+# Inserting into species table
 
-# print "\tPopulating species..."
-# db.cursor.execute('BEGIN')
+print "\tPopulating species..."
+db.cursor.execute('BEGIN')
 
-# for species_id in species_ids: 
-#     values = (species_id, species_ids[species_id])
-#     db.insert("""INSERT INTO {} VALUES(?,?)""".format(species_tb), values)
+for species_id in species_ids: 
+    values = (species_id, species_ids[species_id])
+    db.insert("""INSERT INTO {} VALUES(?,?)""".format(species_tb), values)
 
-# db.connection.commit()
+db.connection.commit()
 
-# # Inserting into sites table
-# print "\tPopulating sites..."
+# Inserting into sites table
+print "\tPopulating sites..."
 
-# db.cursor.execute('BEGIN')
+db.cursor.execute('BEGIN')
 
-# for site_id in site_ids: 
-#     values = (site_id,) + site_ids[site_id]
+for site_id in site_ids: 
+    values = (site_id,) + site_ids[site_id]
     
-#     db.insert("""INSERT INTO {} VALUES(?,?,?,?,?)""".format(sites_tb), values)
+    db.insert("""INSERT INTO {} VALUES(?,?,?,?,?)""".format(sites_tb), values)
 
-# db.connection.commit()
+db.connection.commit()
 
-# # Inserting into trees table
-# print "\tPopulating trees..."
+# Inserting into trees table
+print "\tPopulating trees..."
 
-# db.cursor.execute('BEGIN')
+db.cursor.execute('BEGIN')
 
-# for core_id in core_ids: 
-#     values = (core_id,) + core_ids[core_id]
+for core_id in core_ids: 
+    values = (core_id,) + core_ids[core_id]
     
-#     db.insert("""INSERT INTO {} VALUES(?,?,?)""".format(trees_tb), values)
+    db.insert("""INSERT INTO {} VALUES(?,?,?)""".format(trees_tb), values)
 
-# db.connection.commit()
+db.connection.commit()
 
-# # Inserting into observations table
-# print "\tPopulating observations...\n"
+# Inserting into observations table
+print "\tPopulating observations...\n"
 
-# # print "Started processing rwl files..."
+# print "Started processing rwl files..."
 
-# file_count = 1
+file_count = 1
 
-# # (self.site_id, self.site_name, self.species_id, self.location, 
-# #             self.species, self.elevation, self.coordinates, self.units, self.missing_value_id, core_id, year, ring_width)
+for package in rwl_finder(rwls_path): 
+        start_time = time.time()
+        
+        package_paleodata_files = package['paleodata']
+
+        for paleodata_file in package_paleodata_files: 
+            package_copy = {
+                'correlation': package['correlation'], 
+                'paleodata': [paleodata_file],
+                'metadata': package['metadata']
+            }
+
+            try: 
+                rwl_reader = RwlReader(package)
+            except Exception as e: 
+                print e, paleodata_file
+                writer.writerow([paleodata_file, e])
+                continue
+
+            for row in rwl_reader.get_data():
+                core_id = row[-3]
+                site_id = row[0]
+                year = row[-2]
+                first_year, last_year = row[-4]
+                ring_width = row[-1]
+
+                values = (core_id, site_id, year, first_year, last_year, ring_width)
+
+                db.insert("""INSERT INTO {} VALUES(NULL,?,?,?,?,?,?)""".format(observations_tb), values)
+
+            db.connection.commit()        
+                
+            elapsed_time = time.time() - start_time
+            total_time += elapsed_time 
+            print "\t\tTime Elapsed: {}s\tAvg. Time: {}s\n".format(round(elapsed_time, 2), round(total_time/file_count, 2))
+
+            file_count += 1
+
+
+
+# observation_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+# tree_id NVARCHAR(7) REFERENCES trees(tree_id) NOT NULL,
+# site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL, 
+# year INT NULL,
+# first_year INT NULL,
+# last_year INT NULL,
+# ring_width REAL NOT NULL
+
+# yield (self.site_id, self.site_name, self.species, self.species_id, self.elevation, 
+#                             self.coordinates, self.year_range, core_id, year, round(ring_width*self.units, 6))
 
 
 # for rwl_file in rwl_finder(rwls_path): 
@@ -231,14 +267,14 @@ else:
 
 # # db.connection.commit()
 
-# print "Finished processing rwl files in {}s".format(round(total_time, 2))        
+print "Finished processing rwl files in {}s".format(round(total_time, 2))        
 
 
 
 
 
 
-# errors_file.close()
+errors_file.close()
 
 
 

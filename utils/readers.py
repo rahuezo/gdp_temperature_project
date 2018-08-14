@@ -27,15 +27,18 @@ class RwlReader:
         self.set_header_from_correlation()
         self.set_header_from_rwl()
 
-        print "site id: ", self.site_id
-        print "site name: ", self.site_name
-        print "species: ", self.species
-        print "species id: ", self.species_id
-        print "elevation: ", self.elevation
-        print "coords: ", self.coordinates
-        print "year range: ", self.year_range
+        if not self.elevation: 
+            self.elevation = 0
 
-        print self.units
+        # print "site id: ", self.site_id
+        # print "site name: ", self.site_name
+        # print "species: ", self.species
+        # print "species id: ", self.species_id
+        # print "elevation: ", self.elevation
+        # print "coords: ", self.coordinates
+        # print "year range: ", self.year_range
+
+        # print self.units
 
 
     def set_header_from_metadata(self): 
