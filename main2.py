@@ -105,7 +105,14 @@ if not all([os.path.exists('species_dict.pkl'), os.path.exists('cores_dict.pkl')
                 if site_id not in site_ids: 
                     site_name = row[1]
                     elevation = row[4]
-                    latitude, longitude = row[5]
+                    
+                    try: 
+                        latitude, longitude = row[5]
+                    except Exception as e: 
+                        print e, paleodata_file
+                        print row[5]
+                        sys.exit()
+
                     # location = row[3] Do we need location if we have coordinates?
 
                     site_ids[site_id] = (site_name, elevation, latitude, longitude)
