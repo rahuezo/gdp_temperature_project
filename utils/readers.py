@@ -57,8 +57,12 @@ class RwlReader:
                             geometry = geo['geometry']
                             if 'coordinates' in geometry: 
                                 coordinates = geometry['coordinates']
-                                if coordinates and len(coordinates) >= 2 and self.coordinates == None: 
-                                    self.coordinates = coordinates
+                                if coordinates and self.coordinates == None: 
+                                    if len(coordinates) == 2: 
+                                        self.coordinates = coordinates
+                                    elif len(coordinates) == 4: 
+                                        self.coordinates = [coordinates[0], coordinates[2]]
+                                        
                         if 'properties' in geo: 
                             properties = geo['properties']
                             if 'maxElevationMeters' in properties: 
@@ -116,11 +120,15 @@ class RwlReader:
                     self.species_id = species_id
                 if not self.species: 
                     self.species = species
-        if latitude and longitude: 
-            latitude = get_first(latitude).strip().lower()
-            longitude = get_first(longitude).strip().lower()
-            if not self.coordinates: 
-                self.coordinates = [latitude, longitude]
+        
+        # This is written differently than in json metadata 
+
+        # if latitude and longitude: 
+        #     latitude = get_first(latitude).strip().lower()
+        #     longitude = get_first(longitude).strip().lower()
+        #     if not self.coordinates: 
+        #         self.coordinates = [latitude, longitude]
+
         if elevation: 
             elevation = get_first(elevation).strip().lower()
             if not self.elevation and elevation.replace('m', ''):
