@@ -14,7 +14,7 @@ def tb_to_csv(tb_file):
             key = tuple(row[:7])
 
             if key not in records: 
-                records[key] = row + [None]
+                records[key] = row + [row[-1]]
             else: 
                 records[key][-1] = row[-1]
 
@@ -31,14 +31,19 @@ def tb_to_csv(tb_file):
         for i, record in enumerate(records): 
             if i == 0: 
                 print "\t{} out of {} records".format(i + 1, len(records))
-                
+
             if nprints >= 1000:                 
                 print "\t{} out of {} records".format(i + 1, len(records))
                 nprints = 0
             else:
                 nprints += 1
             
-            writer.writerow(records[record])
+            try: 
+                writer.writerow(records[record])
+            except Exception as e: 
+                print e
+                print records[record]
+                continue
 
         print "\nFinished writing tb to csv"
         
