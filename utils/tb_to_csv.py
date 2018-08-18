@@ -11,6 +11,8 @@ def tb_to_csv(tb_file):
         reader.next()
 
         for row in reader:   
+            row = [s.encode('utf-8') for s in row]
+
             try:           
                 key = tuple(row[:7])
 
@@ -28,7 +30,10 @@ def tb_to_csv(tb_file):
 
     with open(fout_path, 'wb') as fout: 
         writer = csv.writer(fout, delimiter=',')
+        
+        header = ['Latitude', 'Longitude', 'Elevation', 'Site ID', 'Site Name', 'Species', 'Tree ID', 'First Tree Year', 'Last Tree Year']
 
+        writer.writerow(header)
         nprints = 0
 
         print "\nWriting tb to csv"
