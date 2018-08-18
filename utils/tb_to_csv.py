@@ -8,7 +8,7 @@ def tb_to_csv(tb_file):
 
     with open(tb_file, 'rb') as f: 
         reader = csv.reader(f)
-        header = reader.next()
+        reader.next()
 
         for row in reader:             
             key = tuple(row[:7])
@@ -25,7 +25,7 @@ def tb_to_csv(tb_file):
     with open(fout_path, 'wb') as fout: 
         writer = csv.writer(fout, delimiter=',')
 
-        writer.writerow(header)
+        # writer.writerow(header)
 
         print "\nWriting tb to csv"
         for i, record in enumerate(records): 
