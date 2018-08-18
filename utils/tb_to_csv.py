@@ -10,14 +10,18 @@ def tb_to_csv(tb_file):
         reader = csv.reader(f)
         reader.next()
 
-        for row in reader:             
-            key = tuple(row[:7])
+        for row in reader:   
+            try:           
+                key = tuple(row[:7])
 
-            if key not in records: 
-                records[key] = row + [row[-1]]
-            else: 
-                records[key][-1] = row[-1]
-
+                if key not in records: 
+                    records[key] = row + [row[-1]]
+                else: 
+                    records[key][-1] = row[-1]
+            except Exception: 
+                print e
+                print row
+                continue
     # print "Records: ", records
 
     fout_path = fd.asksaveasfilename(title="Save csv as")
