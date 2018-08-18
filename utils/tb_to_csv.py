@@ -13,7 +13,7 @@ def tb_to_csv(tb_file):
         reader.next()
 
         for row in reader:             
-            key = (row[3], row[6], row[7])
+            key = tuple(row[:7])
 
             if key not in records: 
                 records[key] = row + [None]
