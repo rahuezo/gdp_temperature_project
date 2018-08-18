@@ -1,6 +1,6 @@
 import tkFileDialog as fd
 import csv
-
+import chardet
 
 
 def tb_to_csv(tb_file): 
@@ -10,8 +10,10 @@ def tb_to_csv(tb_file):
         reader = csv.reader(x.replace('\0', '') for x in f)
         reader.next()
 
-        for row in reader:   
-            row = [s.encode('utf-8') for s in row]
+        for row in reader:  
+            encoding = chardet.detect(''.join(row))['encoding'] 
+
+            row = [s.encode(encoding) for s in row]
 
             try:           
                 key = tuple(row[:7])
