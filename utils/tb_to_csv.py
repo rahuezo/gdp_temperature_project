@@ -8,9 +8,9 @@ def tb_to_csv(tb_file):
 
     with open(tb_file, 'rb') as f: 
         reader = csv.reader(f)
-
-        # Read header and skip
-        reader.next()
+        header = reader.next()
+        header[-1] = 'First Tree Year'
+        header += ['Last Tree Year']
 
         for row in reader:             
             key = tuple(row[:7])
@@ -20,19 +20,24 @@ def tb_to_csv(tb_file):
             else: 
                 records[key][-1] = row[-1]
 
-    return records
+    fout_path = fd.asksaveasfilename(title="Save csv as")
+
+    with open(fout_path, 'wb') as fout: 
+        writer = csv.writer(fout, delimiter=',')
+
+        writer.writerow(header)
+
+        print "\nWriting tb to csv"
+        for i, record in enumerate(records): 
+            print "\t{} out of {} records".format(i + 1, len(records))
+            writer.writerow(record)
+
+        print "\nFinished writing tb to csv"
+        
+
 
 
 
 f = fd.askopenfilename(title="Choose tree level records csv")
 
-print "Records: "
-print tb_to_csv(f)
-
-
-
-# ['Latitude', 'Longitude', 'Elevation', 'Site ID', 'Site Name', 'Species Name', 'Tree ID', 'Year']
-# ['61.1333', '-142.0667', '876', 'wr20', 'hawkins glacier', 'white spruce', 'wr16a', '1760']
-
-
-
+tb_to_csv(f)
