@@ -32,7 +32,7 @@ def tb_to_csv(tb_file):
         print "\nWriting tb to csv"
         for i, record in enumerate(records): 
             print "\t{} out of {} records".format(i + 1, len(records))
-            writer.writerow(record)
+            writer.writerow(records[record])
 
         print "\nFinished writing tb to csv"
         
