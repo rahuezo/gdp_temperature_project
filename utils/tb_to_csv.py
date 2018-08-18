@@ -7,7 +7,7 @@ def tb_to_csv(tb_file):
     records = {}
 
     with open(tb_file, 'rb') as f: 
-        reader = csv.reader(f)
+        reader = csv.reader(x.replace('\0', '') for x in f)
         reader.next()
 
         for row in reader:   
