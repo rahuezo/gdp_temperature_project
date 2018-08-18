@@ -9,8 +9,6 @@ def tb_to_csv(tb_file):
     with open(tb_file, 'rb') as f: 
         reader = csv.reader(f)
         header = reader.next()
-        header[-1] = 'First Tree Year'
-        header += ['Last Tree Year']
 
         for row in reader:             
             key = tuple(row[:7])
