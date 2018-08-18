@@ -20,6 +20,8 @@ def tb_to_csv(tb_file):
             else: 
                 records[key][-1] = row[-1]
 
+    print "Records: ", records
+
     fout_path = fd.asksaveasfilename(title="Save csv as")
 
     with open(fout_path, 'wb') as fout: 
