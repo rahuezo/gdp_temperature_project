@@ -11,9 +11,8 @@ def tb_to_csv(tb_file):
         reader.next()
 
         for row in reader:  
-            encoding = chardet.detect(''.join(row))['encoding'] 
-
-            row = [unicode(s.decode(encoding)) for s in row]
+            # encoding = chardet.detect(''.join(row))['encoding'] 
+            # row = [unicode(s.decode(encoding)) for s in row]
 
             try:           
                 key = tuple(row[:7])

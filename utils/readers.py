@@ -19,7 +19,7 @@ class RwlReader:
         self.metadata_file = get_first(package['metadata'])
         self.correlation_file = get_first(package['correlation'])
         self.paleodata_file = get_first(package['paleodata'])
-        self.site_id = self.site_name = self.species = self.species_id = self.elevation = self.coordinates = self.year_range = None
+        self.site_id = self.site_name = self.species = self.species_id = self.elevation = self.coordinates = self.year_range = self.year_bp_range = None
 
         self.units, self.missing_value_id = self.get_units(self.get_content(self.paleodata_file, raw=True))
 
@@ -30,16 +30,34 @@ class RwlReader:
         if not self.elevation: 
             self.elevation = 0
 
-        # print "site id: ", self.site_id
-        # print "site name: ", self.site_name
-        # print "species: ", self.species
-        # print "species id: ", self.species_id
-        # print "elevation: ", self.elevation
-        # print "coords: ", self.coordinates
-        # print "year range: ", self.year_range
+        print "site id: ", self.site_id
+        print "site name: ", self.site_name
+        print "species: ", self.species
+        print "species id: ", self.species_id
+        print "elevation: ", self.elevation
+        print "coords: ", self.coordinates
+        print "year range: ", self.year_range
+        print "year bp range: ", self.year_bp_range
 
-        # print self.units
+        print self.units
 
+    # "paleoData" : [ {
+    #   "dataTableName" : "NC022",
+    #   "NOAADataTableId" : "23500",
+    #   "earliestYear" : 1716,
+    #   "mostRecentYear" : 1996,
+    #   "timeUnit" : "AD",
+    #   "earliestYearBP" : 234,
+    #   "mostRecentYearBP" : -46,
+    #   "earliestYearCE" : 1716,
+    #   "mostRecentYearCE" : 1996,
+    #   "coreLengthMeters" : null,
+    #   "dataTableNotes" : null,
+    #   "species" : [ {
+    #     "speciesCode" : "QUSP",
+    #     "scientificName" : "Quercus spp. L.",
+    #     "commonName" : [ "oak" ]
+    #   } ],
 
     def set_header_from_metadata(self): 
         with open(self.metadata_file, 'rb') as mf: 
@@ -71,12 +89,18 @@ class RwlReader:
                                     self.elevation = max_elevation
                     if 'paleoData' in site_data: 
                         paleodata = get_first(site_data['paleoData'])
-                        
+                        #   "earliestYearBP" : 234   "mostRecentYearBP" : -46,
                         if 'earliestYear' in paleodata and 'mostRecentYear' in paleodata: 
                             first_year = paleodata['earliestYear']
                             last_year = paleodata['mostRecentYear']
                             if first_year and last_year and len(str(first_year)) and len(str(last_year)) and self.year_range == None: 
                                 self.year_range = [first_year, last_year]
+                        
+                        if 'earliestYearBP' in paleodata and 'mostRecentYearBP' in paleodata: 
+                            first_year_bp = paleodata['earliestYearBP']
+                            last_year_bp = paleodata['mostRecentYearBP']
+                            if first_year_bp and last_year_bp and len(str(first_year_bp)) and len(str(last_year_bp)) and self.year_bp_range == None: 
+                                self.year_bp_range = [first_year_bp, last_year_bp]
 
                         if 'species' in paleodata: 
                             species_data = get_first(paleodata['species'])
@@ -169,8 +193,8 @@ class RwlReader:
         paleodata_rows = self.get_content(self.paleodata_file, start=3)
 
         def split_row(row): 
-            core_id = row[:8].strip().lower()
-            decade = row[8:12].strip()
+            core_id = row[:6].strip().lower() # row[:8] -> row[:6]
+            decade = row[6:12].strip()  # row[8:12] -> row[6:12]
             data = row[12:].strip().split()
             
             return core_id, decade, data
@@ -192,7 +216,7 @@ class RwlReader:
                 if ring_width != self.missing_value_id:             
                     year = decade + i
                     yield (self.site_id, self.site_name, self.species, self.species_id, self.elevation, 
-                            self.coordinates, self.year_range, core_id, year, round(ring_width*self.units, 6))
+                            self.coordinates, self.year_range, self.year_bp_range, core_id, year, round(ring_width*self.units, 6))
             
     @staticmethod
     def get_units(content): 
