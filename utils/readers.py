@@ -30,16 +30,16 @@ class RwlReader:
         if not self.elevation: 
             self.elevation = 0
 
-        print "site id: ", self.site_id
-        print "site name: ", self.site_name
-        print "species: ", self.species
-        print "species id: ", self.species_id
-        print "elevation: ", self.elevation
-        print "coords: ", self.coordinates
-        print "year range: ", self.year_range
-        print "year bp range: ", self.year_bp_range
+        # print "site id: ", self.site_id
+        # print "site name: ", self.site_name
+        # print "species: ", self.species
+        # print "species id: ", self.species_id
+        # print "elevation: ", self.elevation
+        # print "coords: ", self.coordinates
+        # print "year range: ", self.year_range
+        # print "year bp range: ", self.year_bp_range
 
-        print self.units
+        # print self.units
 
     # "paleoData" : [ {
     #   "dataTableName" : "NC022",
@@ -183,7 +183,7 @@ class RwlReader:
 
         coordinates = header[1][47:57].strip().lower()
 
-        print "Coordinates from rwl: ", coordinates
+        # print "Coordinates from rwl: ", coordinates
         year_range = header[1][67:76].strip().split(' ')
 
         if year_range and len(year_range) > 1 and not self.year_range: 
