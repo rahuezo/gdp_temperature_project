@@ -3,12 +3,15 @@ from utils.readers import RwlReader
 from utils.database import Database
 
 import tkFileDialog as fd
-import os, time, csv
+import os, time, csv, sys
 import cPickle as pk
 
 
 rwls_path = fd.askdirectory(title="Choose rwls root dir")
 
+if not rwls_path: 
+    print "\nNo directory selected. Goodbye!\n"
+    sys.exit()
 
 if not os.path.exists('./results'): 
     os.makedirs('results')
