@@ -48,6 +48,7 @@ observations_tb = db.create_table("observations",
     observation_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     tree_id NVARCHAR(7) REFERENCES trees(tree_id) NOT NULL,
     site_id NVARCHAR(7) REFERENCES sites(site_id) NOT NULL, 
+    time_unit TEXT,
     year INT NULL,
     first_year INT NULL,
     last_year INT NULL,
@@ -212,14 +213,15 @@ for package in rwl_finder(rwls_path):
             for row in rwl_reader.get_data():
                 core_id = row[-3]
                 site_id = row[0]
+                time_unit = row[-6]
                 year = row[-2]
                 first_year, last_year = row[-5]
                 first_year_bp, last_year_bp = row[-4]
                 ring_width = row[-1]
 
-                values = (core_id, site_id, year, first_year, last_year, first_year_bp, last_year_bp, ring_width)
+                values = (core_id, site_id, time_unit, year, first_year, last_year, first_year_bp, last_year_bp, ring_width)
 
-                db.insert("""INSERT INTO {} VALUES(NULL,?,?,?,?,?,?,?,?)""".format(observations_tb), values)
+                db.insert("""INSERT INTO {} VALUES(NULL,?,?,?,?,?,?,?,?,?)""".format(observations_tb), values)
 
             db.connection.commit()        
                 

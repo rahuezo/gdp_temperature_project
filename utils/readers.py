@@ -19,7 +19,7 @@ class RwlReader:
         self.metadata_file = get_first(package['metadata'])
         self.correlation_file = get_first(package['correlation'])
         self.paleodata_file = get_first(package['paleodata'])
-        self.site_id = self.site_name = self.species = self.species_id = self.elevation = self.coordinates = self.year_range = self.year_bp_range = None
+        self.site_id = self.site_name = self.species = self.species_id = self.elevation = self.coordinates = self.time_unit = self.year_range = self.year_bp_range = None
 
         self.units, self.missing_value_id = self.get_units(self.get_content(self.paleodata_file, raw=True))
 
@@ -90,6 +90,13 @@ class RwlReader:
                     if 'paleoData' in site_data: 
                         paleodata = get_first(site_data['paleoData'])
                         #   "earliestYearBP" : 234   "mostRecentYearBP" : -46,
+
+                        if 'timeUnit' in paleodata: 
+                            time_unit = paleodata['timeUnit']
+
+                            if time_unit and self.time_unit == None: 
+                                self.time_unit = time_unit.strip().lower()
+
                         if 'earliestYear' in paleodata and 'mostRecentYear' in paleodata: 
                             first_year = paleodata['earliestYear']
                             last_year = paleodata['mostRecentYear']
@@ -216,7 +223,7 @@ class RwlReader:
                 if ring_width != self.missing_value_id:             
                     year = decade + i
                     yield (self.site_id, self.site_name, self.species, self.species_id, self.elevation, 
-                            self.coordinates, self.year_range, self.year_bp_range, core_id, year, round(ring_width*self.units, 6))
+                            self.coordinates, self.time_unit, self.year_range, self.year_bp_range, core_id, year, round(ring_width*self.units, 6))
             
     @staticmethod
     def get_units(content): 
