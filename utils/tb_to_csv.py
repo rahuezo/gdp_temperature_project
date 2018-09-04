@@ -32,7 +32,13 @@ def tb_to_csv(tb_file):
     with open(fout_path, 'wb') as fout: 
         writer = csv.writer(fout, delimiter=',')
         
-        header = ['Latitude', 'Longitude', 'Elevation', 'Site ID', 'Site Name', 'Species', 'Tree ID', 'First Tree Year', 'Last Tree Year']
+        header = ['Latitude', 'Longitude', 'Elevation', 'Site ID', 'Site Name', 'Species Name', 'Tree ID', 
+            'Time Unit', 'Study Start Year BP', 'Study End Year BP', 'Study Start Year', 
+            'Study End Year', 'Tree Start Year', 'Tree End Year']
+
+    # Latitude,Longitude,Elevation,Site ID,Site Name,
+    # Species Name,Tree ID,Time Unit,Start Year BP,
+    # Last Year BP,Start Year,End Year,Tree Year
 
         writer.writerow(header)
         nprints = 0
