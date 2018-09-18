@@ -1,20 +1,17 @@
+from finders import rwl_finder
+from readers import RwlReader
+from database import Database
+
 import os, time, csv, sys
-
-
-sys.path.append(os.path.abspath(os.path.join('..', 'utils')))
-
-from utils.finders import rwl_finder
-from utils.readers import RwlReader
-from utils.database import Database
-
 import tkFileDialog as fd
 import cPickle as pk
 
 
-def between(n, a=0, b=1): 
-    return a <= n <= b
 
-def get_year(line): 
+
+def get_year(line, a, b): 
+    def between(n, a, b): 
+        return a <= n <= b
     result = []
 
     i = len(line)
@@ -53,11 +50,13 @@ for package in rwl_finder(rwls_path):
             rwl_reader = RwlReader(package)
         except Exception as e: 
             print e, paleodata_file
-            writer.writerow([paleodata_file, e])
+            # writer.writerow([paleodata_file, e])
             continue
 
-        for row in rwl_reader.get_data(test=1): 
-            print row
+        for row in rwl_reader.get_data(test=0): 
+            print row[1][:12]
+            # print "Parsed Year: ", row[0][-1], get_year(row[1], rwl_reader.year_range[0], rwl_reader.year_range[1]) 
+            # print "Re-parsed year: ", get_year(row[1], rwl_reader.year_range[0], rwl_reader.year_range[1]) 
 
 
 

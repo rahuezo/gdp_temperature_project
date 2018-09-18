@@ -196,7 +196,7 @@ class RwlReader:
         if year_range and len(year_range) > 1 and not self.year_range: 
             self.year_range = year_range
 
-    def get_data(self): 
+    def get_data(self, test=0): 
         paleodata_rows = self.get_content(self.paleodata_file, start=3)
 
         def split_row(row): 
@@ -206,24 +206,28 @@ class RwlReader:
             
             return core_id, decade, data
 
-        for row in paleodata_rows:  
-            core_id, decade, data = split_row(row)
-            for i, ring_width in enumerate(data):
-                try:  
-                    ring_width = int(ring_width)
-                except: 
-                    continue
+        if test: 
+            for row in paleodata_rows: 
+                yield row
+        else:         
+            for row in paleodata_rows:  
+                core_id, decade, data = split_row(row)
+                for i, ring_width in enumerate(data):
+                    try:  
+                        ring_width = int(ring_width)
+                    except: 
+                        continue
 
-                try: 
-                    decade = int(decade)
+                    try: 
+                        decade = int(decade)
 
-                except: 
-                    continue
+                    except: 
+                        continue
 
-                if ring_width != self.missing_value_id:             
-                    year = decade + i
-                    yield (self.site_id, self.site_name, self.species, self.species_id, self.elevation, 
-                            self.coordinates, self.time_unit, self.year_range, self.year_bp_range, core_id, year, round(ring_width*self.units, 6))
+                    if ring_width != self.missing_value_id:             
+                        year = decade + i
+                        yield (self.site_id, self.site_name, self.species, self.species_id, self.elevation, 
+                                self.coordinates, self.time_unit, self.year_range, self.year_bp_range, core_id, year, round(ring_width*self.units, 6), decade), row
             
     @staticmethod
     def get_units(content): 
