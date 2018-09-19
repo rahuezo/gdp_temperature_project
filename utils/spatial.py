@@ -38,11 +38,43 @@ def cru_dat_to_grid(p):
 
 
 
-p = r'C:\Users\Rudy\Downloads\cru_ts4.01.1901.1910.tmn.dat.gz'
+# p = r'C:\Users\Rudy\Downloads\cru_ts4.01.2011.2016.pre.dat.gz'
 
-g = cru_dat_to_grid(p)
+# g = cru_dat_to_grid(p)
 
-print g[(147,0)]
+# print g
+
+# var a = csv.select(x => new coordinate(x[0], x[1]))
+#     .groupby(x => x.row)
+#     .todictionary(x => x.Key, y => y.tolist());
+
+# int i = 0;
+# foreach(var line in lines)
+# {
+#     if (a.containskey(i))
+#         a[i].foreach(x => x.precip.add(line.substring(x.col * 8, 8)));
+#     i = i == 359 ? 0 : i + 1;
+# }
+
+# class coordinate{
+#     public coordinate(double lat, double lng){
+#         this.original_lat = lat;
+#         this.original_lng = lng;
+#         this.precip = new List<int>();
+#     }
+#     private double _rounded_lat = int.min;
+#     private double _rounded_lng = int.min;
+#     private int _row = int.min;
+#     private int _col = int.min;
+
+#     public double original_lat {get;set;}
+#     public double original_lng {get;set;}
+#     public double rounded_lat {get {return _rounded_lat == int.min ? _rounded_lat = correctlat(this.original_lat) : _rounded_lat; } }
+#     public double rounded_lng {get{return _rounded_lng == int.min ? _rounded_lng = correctlng(this.original_lng) : _rounded_lng; }}
+#     public double row {get { return _row == int.min ? _row = (this.rounded_lat + 89.75) * 2 : _row; } }
+#     public double col {get { return _col == int.min ? _col = (this.rounded_lng + 179.75) * 2 : _col; } }
+#     public List<int> precip {get { return _precip; }}
+# }
 
 
 
